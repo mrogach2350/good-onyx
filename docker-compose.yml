@@ -1,0 +1,50 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - "3300:3000"
+    environment:
+      - BASE_SCRAPER_URL=http://autoamtor:4000
+      - DATABASE_URL=postgres://postgres:mypassword@db:5432/postgres
+      - MIGRATE=true
+    networks:
+      - good_onyx_internal
+      - good_onyx_public
+  autoamtor:
+    build: ./offer-getter
+    ports:
+      - "4000:4000"
+    networks:
+      - good_onyx_internal
+  db:
+    image: postgres:17.2-bullseye
+    networks:
+      - good_onyx_internal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+  keydb:
+    image: eqalpha/keydb
+    networks:
+      - good_onyx_s_internal
+    volumes:
+      - keydb_data:/data
+    ports:
+      - "6379:6379"
+
+networks:
+  good_onyx_internal:
+    driver: bridge
+  good_onyx_public:
+    external: true
+
+volumes:
+  postgres_data:
+  keydb_data:
+
+
