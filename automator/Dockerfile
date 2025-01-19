@@ -2,9 +2,7 @@ FROM node:18-bookworm AS base
 
 FROM base as builder
 WORKDIR /app
-
-COPY package.json ./
-COPY package-lock.json ./
+COPY . .
 RUN npm install
 RUN npm run build
 

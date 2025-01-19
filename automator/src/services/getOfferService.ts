@@ -1,6 +1,7 @@
 import { firefox } from "playwright";
+import { logger } from "../index";
 
-export const getOfferForVehicle = async ({ vin, mileage }) => {
+export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   const RECEIVER_EMAIL = "quotes.estimator@proton.me";
   const browser = await firefox.launch({
     headless: true,
@@ -142,15 +143,17 @@ export const getOfferForVehicle = async ({ vin, mileage }) => {
       );
     }
   } catch (error) {
-    console.warn(
-      "Could not interact with Excellent condition option:",
-      error.message
-    );
+    if (error instanceof Error) {
+      console.warn(
+        "Could not interact with Excellent condition option:",
+        error.message
+      );
+    }
     // Continue with the flow rather than failing
   }
 
   // Process condition questions
-  console.log("Starting fieldset processing...");
+  logger.info("Starting fieldset processing...");
 
   // Wait for condition div
   await page.waitForSelector("#DynamicConditionQuestions");
@@ -161,7 +164,7 @@ export const getOfferForVehicle = async ({ vin, mileage }) => {
     .all();
 
   for (let index = 0; index < fieldsets.length; index++) {
-    console.log(`\nProcessing fieldset ${index + 1}`);
+    logger.info(`\nProcessing fieldset ${index + 1}`);
 
     // Find first radio in fieldset
     const firstRadio = await fieldsets[index]
@@ -174,25 +177,25 @@ export const getOfferForVehicle = async ({ vin, mileage }) => {
       await page.waitForTimeout(250); // Short pause after scroll
 
       await firstRadio.click({ delay: 100 });
-      console.log(`Successfully clicked radio in fieldset ${index + 1}`);
+      logger.info(`Successfully clicked radio in fieldset ${index + 1}`);
     } else {
       console.warn(`No radio button found in fieldset ${index + 1}`);
     }
   }
 
   // Fill email and continue
-  console.log("Filling email and submitting...");
+  logger.info("Filling email and submitting...");
   await page.fill('input[name="preferredEmail"]', RECEIVER_EMAIL);
   await page.click("#ico-continue-button");
 
   // Wait for instant offer to appear
-  console.log("Waiting for instant offer...");
+  logger.info("Waiting for instant offer...");
   await page.waitForSelector("#instant-cash-offer", { state: "visible" });
 
   // Get offer details
-  console.log("Collecting offer details...");
+  logger.info("Collecting offer details...");
 
-  console.log("Waiting for offer result...");
+  logger.info("Waiting for offer result...");
   const result = await Promise.race([
     page
       .waitForSelector("#icoIneligible", { state: "visible", timeout: 30000 })
@@ -206,7 +209,7 @@ export const getOfferForVehicle = async ({ vin, mileage }) => {
   ]).catch(() => "timeout");
 
   if (result === "ineligible") {
-    console.log("Inelegible for instant offer");
+    logger.info("Inelegible for instant offer");
     // browser.close();
     return {
       vin,
@@ -235,12 +238,12 @@ export const getOfferForVehicle = async ({ vin, mileage }) => {
   if (!validUntilText) throw new Error("Could not find expiration date");
   const validUntilDate = new Date(validUntilText.replace("Valid through ", ""));
 
-  console.log("Offer details collected:");
-  console.log(`VIN: $${vin}`);
-  console.log(`Mileage: $${mileage}`);
-  console.log(`Amount: $${cleanedAmount}`);
-  console.log(`Code: ${offerCode}`);
-  console.log(`Valid until: ${validUntilDate.toLocaleDateString()}`);
+  logger.info("Offer details collected:");
+  logger.info(`VIN: $${vin}`);
+  logger.info(`Mileage: $${mileage}`);
+  logger.info(`Amount: $${cleanedAmount}`);
+  logger.info(`Code: ${offerCode}`);
+  logger.info(`Valid until: ${validUntilDate.toLocaleDateString()}`);
 
   browser.close();
   return {
