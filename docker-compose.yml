@@ -4,14 +4,14 @@ services:
     ports:
       - "3300:3000"
     environment:
-      - BASE_SCRAPER_URL=http://autoamtor:4000
+      - BASE_SCRAPER_URL=http://automator:4000
       - DATABASE_URL=postgres://postgres:mypassword@db:5432/postgres
       - MIGRATE=true
     networks:
       - good_onyx_internal
       - good_onyx_public
-  autoamtor:
-    build: ./offer-getter
+  automator:
+    build: ./automator
     ports:
       - "4000:4000"
     networks:
@@ -31,7 +31,7 @@ services:
   keydb:
     image: eqalpha/keydb
     networks:
-      - good_onyx_s_internal
+      - good_onyx_internal
     volumes:
       - keydb_data:/data
     ports:

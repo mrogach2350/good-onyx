@@ -1,0 +1,50 @@
+version: "3"
+
+includes:
+  web:
+    taskfile: ./web/Taskfile.yml
+    dir: ./web
+  automator:
+    taskfile: ./automator/Taskfile.yml
+    dir: ./automator
+tasks:
+  dev:
+    deps: [web:dev, automator:dev]
+  create-postgres-dev:
+    cmds:
+      - docker run --name drizzle-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres
+  create-keydb-dev:
+    cmds:
+      - docker run --name keydb -p 6379:6379 -d eqalpha/keydb
+  run-dbs-dev:
+    cmds:
+      - task: run-postgres-dev
+      - task: run-keydb-dev
+  stop-dev-dbs:
+    cmds:
+      - docker stop drizzle-postgres
+      - docker stop keydb
+  run-postgres-dev:
+    cmds:
+      - docker start drizzle-postgres
+  run-keydb-dev:
+    cmds:
+      - docker start keydb
+  migrate:
+    dir: web
+    cmds:
+      - npx drizzle-kit migrate
+  deploy-dbs:
+    cmds:
+      - docker compose up -d db keydb
+  deploy-web:
+    cmds:
+      - docker compose -d --build up web
+  deploy-automator:
+    cmds:
+      - docker compose -d --build up automator
+  deploy-all:
+    cmds:
+      - task: deploy-dbs
+      - task: deploy-automator
+      - task: deploy-web
