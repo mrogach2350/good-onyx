@@ -1,5 +1,5 @@
 {
-  "name": "auction-node",
+  "name": "good-onyx-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,18 +18,23 @@
     "@tanstack/react-query": "^5.62.16",
     "@tanstack/react-query-devtools": "^5.62.16",
     "ag-grid-react": "^33.0.3",
+    "bullmq": "^5.34.10",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.3",
     "ioredis": "^5.4.2",
     "next": "15.1.3",
+    "next-logger": "^5.0.1",
     "node-postgres": "^0.6.2",
     "pg": "^8.13.1",
+    "pino": "^9.6.0",
     "prettier": "^3.4.2",
     "react": "^19.0.0",
     "react-bulma-components": "^4.1.0",
     "react-device-detect": "^2.2.3",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
