@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1736024845761,
+      "tag": "0000_fluffy_meltdown",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1736027079171,
+      "tag": "0001_nervous_lady_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1736061850458,
+      "tag": "0002_sleepy_anthem",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1736110416689,
+      "tag": "0003_adorable_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1736197522579,
+      "tag": "0004_opposite_shadow_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1736208026286,
+      "tag": "0005_large_absorbing_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1736234085468,
+      "tag": "0006_wakeful_master_chief",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1736555120808,
+      "tag": "0007_friendly_fantastic_four",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1736555874003,
+      "tag": "0008_faulty_slyde",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1736566715563,
+      "tag": "0009_wonderful_vulture",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1736657431326,
+      "tag": "0010_exotic_the_order",
+      "breakpoints": true
+    }
+  ]
+}
