@@ -91,7 +91,8 @@ app.post("/get-bid", getBidHandler);
 
 httpServer.listen(4000, () => {
   logger.info("listening on port 4000");
-  const connection = new IORedis(6379, "localhost", {
+  const REDIS_HOST = process.env.REDIS_HOST || "keydb"
+  const connection = new IORedis(6379, REDIS_HOST, {
     maxRetriesPerRequest: null,
   });
   const worker = new Worker(

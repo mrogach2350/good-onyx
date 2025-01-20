@@ -8,8 +8,9 @@ RUN npm run build
 
 FROM base as runner
 COPY --from=builder /app/dist ./
+COPY --from=builder /app/node_modules ./node_modules
 
 # Install Playwright and its dependencies
 RUN npx -y playwright@1.49.1 install firefox --with-deps
 
-CMD ["node", "index.ts"]
+CMD ["node", "index.js"]
