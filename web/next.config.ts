@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 import './envConfig.ts'
 
-const BASE_SERVER_URL = process.env.BASE_SERVER_URL
-
 const nextConfig = {
   /* config options here */
   output: "standalone",
@@ -11,7 +9,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${BASE_SERVER_URL}/:path*`,
+        destination: `${process.env.BASE_SERVER_URL}/:path*`,
       },
     ]
   },
