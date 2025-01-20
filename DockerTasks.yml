@@ -10,9 +10,9 @@ tasks:
   deploy-web:
     cmds:
       - docker compose -d --build up web
-  deploy-automator:
+  deploy-server:
     cmds:
-      - docker compose -d --build up automator
+      - docker compose -d --build up server
   create-postgres-dev:
     cmds:
       - docker run --name drizzle-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres

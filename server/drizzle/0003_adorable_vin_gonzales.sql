@@ -1,0 +1,1 @@
+ALTER TABLE "offers" ADD CONSTRAINT "offers_vehicleId_vehicles_id_fk" FOREIGN KEY ("vehicleId") REFERENCES "public"."vehicles"("id") ON DELETE cascade ON UPDATE no action;

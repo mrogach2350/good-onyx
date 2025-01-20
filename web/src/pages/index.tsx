@@ -98,7 +98,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     useQuery({
       queryKey: ["vehiclesByList", selectedListId],
       queryFn: async () => {
-        const res = await fetch(`/api/lists/${selectedListId}/vehicles`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists/${selectedListId}/vehicles`);
         return await res.json();
       },
     });

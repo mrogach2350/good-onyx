@@ -1,0 +1,1 @@
+ALTER TABLE "vehicles" ALTER COLUMN "note" SET DEFAULT '';
