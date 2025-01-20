@@ -12,7 +12,7 @@ export default function AddToListDropDown({
 }) {
   const { data, isLoading } = useQuery({
     queryFn: async () => {
-      const result = await fetch("/api/lists");
+      const result = await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists"`);
       return await result.json();
     },
     queryKey: ["lists"],
@@ -20,7 +20,7 @@ export default function AddToListDropDown({
 
   const addVehiclesToListMutation = useMutation({
     mutationFn: async (selectedListId: string | number) => {
-      await fetch(`/api/lists/${selectedListId}/vehicles`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists/${selectedListId}/vehicles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

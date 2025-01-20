@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 export default function EventListener() {
   useEffect(() => {
-    const socket = io("http://localhost:4000/");
+    const socket = io(process.env.NEXT_PUBLIC_BASE_SERVER_URL);
 
     socket.on("connect", () => {
       console.log("socket connected");
@@ -25,5 +25,5 @@ export default function EventListener() {
       });
     };
   }, []);
-  return <div/>;
+  return <div />;
 }

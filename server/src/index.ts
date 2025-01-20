@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { createLogger, format, transports } from "winston";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -22,7 +23,7 @@ import {
   getVehicleByIdHandler,
   updateVehicleHandler,
   deleteVehicleHandler,
-  undoDeleteVehiclesHandler
+  undoDeleteVehiclesHandler,
 } from "./handlers/vehicles";
 
 const app = express();
@@ -46,6 +47,7 @@ export const logger = createLogger({
   ],
 });
 
+app.use(cors());
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
@@ -66,7 +68,7 @@ vehiclesRouter
   .get(getVehiclesHandler)
   .put(updateVehicleHandler)
   .delete(deleteVehicleHandler);
-vehiclesRouter.post("/undo", undoDeleteVehiclesHandler)
+vehiclesRouter.post("/undo", undoDeleteVehiclesHandler);
 vehiclesRouter.route("/:id").get(getVehicleByIdHandler);
 
 listsRouter

@@ -14,7 +14,9 @@ export default function ListDropdown({
   const [showNewListModal, setShowNewListModal] = useState<boolean>(false);
   const { data, isLoading } = useQuery({
     queryFn: async () => {
-      const result = await fetch("/api/lists");
+      const result = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists`
+      );
       return await result.json();
     },
     queryKey: ["lists"],
@@ -65,7 +67,7 @@ export function NewListModal({ onClose }: { onClose: () => void }) {
 
   const createListMutation = useMutation({
     mutationFn: async () => {
-      await fetch("/api/lists", {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

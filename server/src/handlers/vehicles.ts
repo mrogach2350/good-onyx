@@ -28,7 +28,7 @@ const getVehicleByIdHandler = async (req: Request, res: Response) => {
 
 const updateVehicleHandler = async (req: Request, res: Response) => {
   const { id, note } = req.body;
-
+  
   try {
     await updateVehicle({ id, note });
     res.json({
