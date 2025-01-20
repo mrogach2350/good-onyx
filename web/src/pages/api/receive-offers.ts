@@ -6,7 +6,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { vin = "", mileage = 0, id = 0 } = req.body;
-  const response = await fetch(`${process.env.BASE_SCRAPER_URL}/get-offer`, {
+  const response = await fetch(`${process.env.BASE_SERVER_URL}/get-offer`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

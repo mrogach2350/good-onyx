@@ -13,7 +13,7 @@ export default async function handler(
   let response;
   const { auctionUrl = "", vehicleId } = req.body;
   try {
-    response = await fetch(`${process.env.BASE_SCRAPER_URL}/get-bid`, {
+    response = await fetch(`${process.env.BASE_SERVER_URL}/get-bid`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

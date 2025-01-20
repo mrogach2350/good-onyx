@@ -5,12 +5,12 @@ includes:
   web:
     taskfile: ./web/Taskfile.yml
     dir: ./web
-  automator:
-    taskfile: ./automator/Taskfile.yml
-    dir: ./automator
+  server:
+    taskfile: ./server/Taskfile.yml
+    dir: ./server
 tasks:
   dev:
-    deps: [web:dev, automator:dev]
+    deps: [web:dev, server:dev]
   migrate:
     dir: web
     cmds:
@@ -19,5 +19,5 @@ tasks:
     cmds:
       - task: docker:deploy-dbs
       - task: migrate
-      - task: docker:deploy-automator
+      - task: docker:deploy-server
       - task: docker:deploy-web

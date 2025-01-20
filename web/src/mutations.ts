@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useDeleteVehiclesMutation = () =>
   useMutation({
     mutationFn: async ({ vehicleIds }: { vehicleIds: number[] }) => {
-      const res = await fetch("/api/vehicles/", {
+      const res = await fetch(`${process.env.BASE_SERVER_URL}/vehicles`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export const useDeleteVehiclesMutation = () =>
 export const useGetOfferMutation = () =>
   useMutation({
     mutationFn: async ({ vin, mileage, id }: any) => {
-      return await fetch("/api/enqueue", {
+      return await fetch(`${process.env.BASE_SERVER_URL}/enqueue`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +36,7 @@ export const useGetOfferMutation = () =>
 export const useAuctionScraperMutation = () =>
   useMutation({
     mutationFn: async ({ scraperUrl }: { scraperUrl: string }) => {
-      await fetch("/api/receive-auctions", {
+      await fetch(`${process.env.BASE_SERVER_URL}/receive-auctions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export const useAuctionScraperMutation = () =>
 export const useUndoDeleteVehiclesMutation = () =>
   useMutation({
     mutationFn: async ({ vehicleIds }: { vehicleIds: number[] }) => {
-      const res = await fetch("/api/vehicles/undo", {
+      const res = await fetch(`${process.env.BASE_SERVER_URL}/vehicles/undo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export const useGetAuctionBidsMutation = () =>
   useMutation({
     mutationFn: async ({ selectedNodes }: any) => {
       const httpCalls = selectedNodes.map((node: any) => {
-        return fetch("/api/vehicles/get-bids", {
+        return fetch(`${process.env.BASE_SERVER_URL}/get-bids`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -86,8 +86,8 @@ export const useGetAuctionBidsMutation = () =>
 export const useUpdateNoteMutation = () =>
   useMutation<any, unknown, { id: number; note: string }>({
     mutationFn: async ({ id, note }) => {
-      await fetch("/api/vehicles/update-vehicles", {
-        method: "POST",
+      await fetch(`${process.env.BASE_SERVER_URL}/vehicles`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },

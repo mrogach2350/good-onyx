@@ -9,7 +9,7 @@ export default async function handler(
   let response;
   const { auctionUrl = "" } = req.body;
   try {
-    response = await fetch(`${process.env.BASE_SCRAPER_URL}/get-auctions`, {
+    response = await fetch(`${process.env.BASE_SERVER_URL}/get-auctions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
