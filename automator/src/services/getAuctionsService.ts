@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { logger } from "../index";
 
 function extractCompanyFromUrl(url: string): string {
   // Implement your company extraction logic here
@@ -6,7 +7,7 @@ function extractCompanyFromUrl(url: string): string {
   return urlObj.hostname.split(".")[0]; // Basic example
 }
 
-export const getAuctions = async (auctionListUrl) => {
+export const getAuctions = async (auctionListUrl: string) => {
   try {
     const urlObj = new URL(auctionListUrl);
     const baseSiteUrl = urlObj.hostname;
@@ -71,20 +72,20 @@ export const getAuctions = async (auctionListUrl) => {
         nextButton.hasClass("paginationDisabled") ||
         nextLinkButton.length === 0
       ) {
-        console.log("No more pages to scrape");
+        logger.info("No more pages to scrape");
         break;
       }
 
       // Get next page URL
       const nextPageUrl = nextLinkButton.attr("href");
       if (!nextPageUrl) {
-        console.log("No next page URL found");
+        logger.info("No next page URL found");
         break;
       }
 
       // Create absolute URL by combining base URL with relative path
       currentUrl = new URL(nextPageUrl, auctionListUrl).toString();
-      console.log("Moving to next page:", currentUrl);
+      logger.info("Moving to next page:", currentUrl);
 
       // Optional delay to be nice to the server
       await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -19,7 +19,7 @@ export const useDeleteVehiclesMutation = () =>
 export const useGetOfferMutation = () =>
   useMutation({
     mutationFn: async ({ vin, mileage, id }: any) => {
-      return await fetch("/api/receive-offers", {
+      return await fetch("/api/enqueue", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -17,6 +17,7 @@ import {
 import NoteModal from "@/components/NoteModal";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
+import EventListener from "@/components/EventListener";
 import { getColDefs } from "@/helpers";
 import { getAllVehiclesQuery } from "@/queries";
 import {
@@ -186,6 +187,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           }}
         />
       )}
+      <EventListener />
     </div>
   );
 }

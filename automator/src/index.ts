@@ -1,9 +1,42 @@
 import express from "express";
+import { createLogger, format, transports } from "winston";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import IORedis from "ioredis";
+import { Worker } from "bullmq";
 import { getOfferForVehicle } from "./services/getOfferService";
 import { getAuctions } from "./services/getAuctionsService";
 import { getAuctionBid } from "./services/getAuctionBidService";
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
+const { combine, label, printf } = format;
+const myFormat = printf(({ level, message, label }) => {
+  return `[${label}] ${level}: ${message}`;
+});
+export const logger = createLogger({
+  format: combine(label({ label: "good-onyx-automator" }), myFormat),
+  transports: [
+    new transports.Console({
+      handleExceptions: true,
+    }),
+  ],
+});
+
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`);
+  next();
+});
+
+io.on("connection", (socket) => {
+  logger.info("socket connected");
+});
 
 app.use(express.json());
 
@@ -25,10 +58,12 @@ app.post("/get-auctions", async (req, res) => {
       auction,
     });
   } catch (error) {
-    res.json({
-      error: true,
-      message: error.message,
-    });
+    if (error instanceof Error) {
+      res.json({
+        error: true,
+        message: error.message,
+      });
+    }
   }
 });
 
@@ -51,11 +86,13 @@ app.post("/get-offer", async (req, res) => {
       success: true,
       ...offerData,
     });
-  } catch (e) {
-    res.json({
-      error: true,
-      message: e.message,
-    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.json({
+        error: true,
+        message: error.message,
+      });
+    }
   }
 });
 
@@ -69,12 +106,50 @@ app.post("/get-bid", async (req, res) => {
       success: true,
       bidData,
     });
-  } catch (e) {
-    res.json({
-      error: true,
-      message: e.message,
-    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.json({
+        error: true,
+        message: error.message,
+      });
+    }
   }
 });
 
-app.listen(4000);
+httpServer.listen(4000, () => {
+  logger.info("listening on port 4000");
+  const connection = new IORedis(6379, "localhost", {
+    maxRetriesPerRequest: null,
+  });
+  const worker = new Worker(
+    "get_offer",
+    async (job) => {
+      logger.info(`starting job ${job.name}`);
+      const { vin = "", mileage = 0 } = job.data;
+      if (vin === "" || mileage === 0) return null;
+
+      try {
+        const offerData = await getOfferForVehicle({
+          vin,
+          mileage,
+        });
+
+        return {
+          ...offerData,
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          return {
+            error: error.name,
+            message: error.message,
+          };
+        }
+      }
+    },
+    { connection }
+  );
+
+  worker.on("completed", async (job) => {
+    io.emit("job-completed", job);
+  });
+});
