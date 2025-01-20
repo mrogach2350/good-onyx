@@ -31,21 +31,21 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   await page.waitForTimeout(2000); // 2 second delay
 
   // Enter VIN and location
-  console.log("Clicking VIN button...");
+  logger.info("Clicking VIN button...");
   await page.click("#button-VIN");
 
-  console.log("Filling VIN...");
+  logger.info("Filling VIN...");
   await page.fill('input[name="vin"]', vin);
 
-  console.log("Filling ZIP code...");
+  logger.info("Filling ZIP code...");
   await page.fill('input[name="zipCode"]', "94519");
 
-  console.log("Clicking get started button...");
+  logger.info("Clicking get started button...");
   await page.click("#ico-getstarted-button");
 
   await page.waitForTimeout(3000); // equivalent to sleep(3)
 
-  console.log("Looking for close button...");
+  logger.info("Looking for close button...");
   const closeButton = await page.waitForSelector(
     "#full-screen-container-close",
     {
@@ -55,7 +55,7 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   );
 
   if (closeButton) {
-    console.log("Close button found, attempting to click...");
+    logger.info("Close button found, attempting to click...");
     await closeButton.click();
 
     // Wait for modal to close
@@ -64,31 +64,31 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
       timeout: 5000,
     });
 
-    console.log("Modal closed successfully");
+    logger.info("Modal closed successfully");
   } else {
-    console.warn("Close button not found");
+    logger.warn("Close button not found");
   }
 
   const vinButton = await page.locator("#button-VIN");
   if (vinButton) {
-    console.log("Found VIN button in main content");
-    console.log("Clicking VIN button...");
+    logger.info("Found VIN button in main content");
+    logger.info("Clicking VIN button...");
     await page.click("#button-VIN");
 
-    console.log("Filling VIN...");
+    logger.info("Filling VIN...");
     await page.fill('input[name="vin"]', vin);
 
-    console.log("Filling ZIP code...");
+    logger.info("Filling ZIP code...");
     await page.fill('input[name="zipCode"]', "94519");
 
-    console.log("Clicking get started button...");
+    logger.info("Clicking get started button...");
     await page.click("#ico-getstarted-button");
   } else {
-    console.log("VIN button not found, continuing with flow...");
+    logger.info("VIN button not found, continuing with flow...");
   }
 
   // Style selection
-  console.log("Selecting style...");
+  logger.info("Selecting style...");
   await page.waitForSelector('input[name="style"]');
   await page.click('input[name="style"]', { delay: 100 });
 
@@ -100,7 +100,7 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   await page.waitForSelector("#select-ico-features-transmission");
   await page.selectOption("#select-ico-features-transmission", { index: 1 });
 
-  console.log("Attempting to click Mileage and Condition button...");
+  logger.info("Attempting to click Mileage and Condition button...");
 
   // Wait for button and check its state
   const mileageButton = await page.waitForSelector(
@@ -120,11 +120,11 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   });
 
   // Enter mileage
-  console.log("Entering mileage...");
+  logger.info("Entering mileage...");
   await page.fill('input[name="currentMileage"]', mileage.toString());
 
   // Check for and click Excellent condition if present
-  console.log("Checking for Excellent condition option...");
+  logger.info("Checking for Excellent condition option...");
   try {
     const excellentOption = await page.locator('text="Excellent"').first();
 
@@ -136,15 +136,15 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
       await page.waitForTimeout(500); // Short pause after scroll
 
       await excellentOption.click({ timeout: 5000 });
-      console.log("Clicked Excellent condition");
+      logger.info("Clicked Excellent condition");
     } else {
-      console.log(
+      logger.info(
         "Excellent condition option not found or not visible, continuing..."
       );
     }
   } catch (error) {
     if (error instanceof Error) {
-      console.warn(
+      logger.warn(
         "Could not interact with Excellent condition option:",
         error.message
       );
@@ -179,7 +179,7 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
       await firstRadio.click({ delay: 100 });
       logger.info(`Successfully clicked radio in fieldset ${index + 1}`);
     } else {
-      console.warn(`No radio button found in fieldset ${index + 1}`);
+      logger.warn(`No radio button found in fieldset ${index + 1}`);
     }
   }
 

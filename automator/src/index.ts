@@ -11,7 +11,9 @@ import { getAuctionBid } from "./services/getAuctionBidService";
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  /* options */
+  cors: {
+    origin: "*",
+  },
 });
 
 const { combine, label, printf } = format;
@@ -120,10 +122,29 @@ httpServer.listen(4000, () => {
     maxRetriesPerRequest: null,
   });
   const worker = new Worker(
-    "offer_getter",
+    "get_offer",
     async (job) => {
       logger.info(`starting job ${job.name}`);
-      return null;
+      const { vin = "", mileage = 0 } = job.data;
+      if (vin === "" || mileage === 0) return null;
+
+      try {
+        const offerData = await getOfferForVehicle({
+          vin,
+          mileage,
+        });
+
+        return {
+          ...offerData,
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          return {
+            error: error.name,
+            message: error.message,
+          };
+        }
+      }
     },
     { connection }
   );

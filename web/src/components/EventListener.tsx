@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
-export default async function EventListener() {
+export default function EventListener() {
   useEffect(() => {
-    const socket = io();
+    const socket = io("http://localhost:4000/");
 
     socket.on("connect", () => {
       console.log("socket connected");
@@ -25,5 +25,5 @@ export default async function EventListener() {
       });
     };
   }, []);
-  return <div>Event Listener</div>;
+  return <div/>;
 }
