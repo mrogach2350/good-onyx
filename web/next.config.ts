@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import './envConfig.ts'
 
 const BASE_SERVER_URL = process.env.BASE_SERVER_URL
 
