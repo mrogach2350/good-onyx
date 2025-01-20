@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import './envConfig.ts'
 
+const BASE_SERVER_URL = process.env.BASE_SERVER_URL || 'http://server:4000'
+
 const nextConfig = {
   /* config options here */
   output: "standalone",
@@ -9,7 +11,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.BASE_SERVER_URL}/:path*`,
+        destination: `${BASE_SERVER_URL}/:path*`,
       },
     ]
   },
