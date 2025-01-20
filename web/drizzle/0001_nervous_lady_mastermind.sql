@@ -1,1 +1,0 @@
-ALTER TABLE "auctions" DROP COLUMN "vehicleId";

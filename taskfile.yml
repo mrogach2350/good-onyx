@@ -11,8 +11,12 @@ includes:
 tasks:
   dev:
     deps: [web:dev, server:dev]
+  build:
+    deps: [web:build, server:build]
+  start:
+    deps: [web:start, server:start]
   migrate:
-    dir: web
+    dir: server
     cmds:
       - npx drizzle-kit migrate
   deploy:

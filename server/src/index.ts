@@ -17,6 +17,7 @@ import {
   createListHandler,
   getListVehiclesHandler,
   addVehiclesToListHandler,
+  removeVehiclesFromListHandler,
 } from "./handlers/lists";
 import {
   getVehiclesHandler,
@@ -39,7 +40,7 @@ const myFormat = printf(({ level, message, label }) => {
   return `[${label}] ${level}: ${message}`;
 });
 export const logger = createLogger({
-  format: combine(label({ label: "good-onyx-automator" }), myFormat),
+  format: combine(label({ label: "good-onyx-server" }), myFormat),
   transports: [
     new transports.Console({
       handleExceptions: true,
@@ -81,7 +82,8 @@ listsRouter.route("/:id").get(getListByIdHandler);
 listsRouter
   .route("/:id/vehicles")
   .get(getListVehiclesHandler)
-  .post(addVehiclesToListHandler);
+  .post(addVehiclesToListHandler)
+  .delete(removeVehiclesFromListHandler);
 
 app.post("/get-auctions", getAuctionsHandler);
 app.post("/get-offer", getOfferHandler);

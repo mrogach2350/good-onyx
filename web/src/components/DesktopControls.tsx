@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import ListDropdown from "@/components/ListsDropdown";
 import AddToListDropDown from "@/components/AddToListDropdown";
+import RemoveFromListButton from "@/components/RemoveFromListButton";
 import {
   useDeleteVehiclesMutation,
   useAuctionScraperMutation,
@@ -38,6 +39,11 @@ export default function DesktopControls({
     gridRef?.current?.api.setFilterModel(null);
     gridRef?.current?.api.deselectAll();
     setSelectedListId(listId);
+  };
+
+  const onRemoveVehicleFromList = (listId: number) => {
+    gridRef?.current?.api.setFilterModel(null);
+    gridRef?.current?.api.deselectAll();
   };
 
   const handleDeleteVehicles = async () => {
@@ -100,6 +106,13 @@ export default function DesktopControls({
           onChange={handleListChange}
         />
         <div className="flex justify-end space-x-2 mb-2">
+          {selectedListId !== 0 && (
+            <RemoveFromListButton
+              onDelete={onRemoveVehicleFromList}
+              selectedListId={selectedListId}
+              selectedVehicleNodes={selectedNodes}
+            />
+          )}
           <AddToListDropDown
             selectedVehicleNodes={selectedNodes}
             onSave={onAddVehicleToList}

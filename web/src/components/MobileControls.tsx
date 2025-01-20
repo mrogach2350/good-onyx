@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import ListDropdown from "@/components/ListsDropdown";
 import AddToListDropDown from "@/components/AddToListDropdown";
+import RemoveFromListButton from "@/components/RemoveFromListButton";
 import {
   useDeleteVehiclesMutation,
   useAuctionScraperMutation,
@@ -38,6 +39,11 @@ export default function MobileControls({
     gridRef?.current?.api.setFilterModel(null);
     gridRef?.current?.api.deselectAll();
     setSelectedListId(listId);
+  };
+
+  const onRemoveVehicleFromList = (listId: number) => {
+    gridRef?.current?.api.setFilterModel(null);
+    gridRef?.current?.api.deselectAll();
   };
 
   const handleDeleteVehicles = async () => {
@@ -96,47 +102,59 @@ export default function MobileControls({
           {auctionScraperMutation.isPending ? "Loading..." : "Submit"}
         </button>
       </div>
-      <button
-        className="button is-primary"
-        disabled={!selectedNodes.length || getAuctionBidsMutation.isPending}
-        onClick={() =>
-          getAuctionBidsMutation.mutate(
-            { selectedNodes },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-                setSelectedNodes([]);
-              },
-            }
-          )
-        }>
-        {getAuctionBidsMutation.isPending
-          ? "Loading..."
-          : "Get Bids for Selected Rows"}
-      </button>
-      <div className="flex space-x-1 mb-1">
-        <ListDropdown
-          selectedListId={selectedListId}
-          onChange={handleListChange}
-        />
-        <AddToListDropDown
-          selectedVehicleNodes={selectedNodes}
-          onSave={onAddVehicleToList}
-        />
+      
+      <div className="flex flex-col">
         <button
-          className="button is-danger is-small"
-          disabled={!selectedNodes.length || deleteVehiclesMutation.isPending}
-          onClick={handleDeleteVehicles}>
-          {deleteVehiclesMutation.isPending ? "Loading..." : "Delete"}
+          className="button self-end is-primary my-1"
+          disabled={!selectedNodes.length || getAuctionBidsMutation.isPending}
+          onClick={() =>
+            getAuctionBidsMutation.mutate(
+              { selectedNodes },
+              {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+                  setSelectedNodes([]);
+                },
+              }
+            )
+          }>
+          {getAuctionBidsMutation.isPending
+            ? "Loading..."
+            : "Get Bids for Selected Rows"}
         </button>
-        <Button
-          disabled={lastDeletedVehicleIds.length === 0}
-          onClick={handleUndoDelete}
-          color="warning">
-          <span>
-            <FontAwesomeIcon icon={faArrowRotateLeft} />
-          </span>
-        </Button>
+        <div className="flex justify-end space-x-1 mb-1">
+          <button
+            className="button is-danger"
+            disabled={!selectedNodes.length || deleteVehiclesMutation.isPending}
+            onClick={handleDeleteVehicles}>
+            {deleteVehiclesMutation.isPending ? "Loading..." : "Delete"}
+          </button>
+          <Button
+            disabled={lastDeletedVehicleIds.length === 0}
+            onClick={handleUndoDelete}
+            color="warning">
+            <span>
+              <FontAwesomeIcon icon={faArrowRotateLeft} />
+            </span>
+          </Button>
+        </div>
+        <div className="flex justify-end space-x-1 mb-1">
+          <ListDropdown
+            selectedListId={selectedListId}
+            onChange={handleListChange}
+          />
+          {selectedListId !== 0 && (
+            <RemoveFromListButton
+              onDelete={onRemoveVehicleFromList}
+              selectedListId={selectedListId}
+              selectedVehicleNodes={selectedNodes}
+            />
+          )}
+          <AddToListDropDown
+            selectedVehicleNodes={selectedNodes}
+            onSave={onAddVehicleToList}
+          />
+        </div>
       </div>
     </div>
   );

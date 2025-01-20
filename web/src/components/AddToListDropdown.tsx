@@ -1,7 +1,8 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dropdown } from "react-bulma-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import { useAddVehiclesToListMutation } from "@/mutations";
 
 export default function AddToListDropDown({
   selectedVehicleNodes = [],
@@ -10,31 +11,31 @@ export default function AddToListDropDown({
   selectedVehicleNodes: any[];
   onSave: (n: number) => void;
 }) {
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryFn: async () => {
-      const result = await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists"`);
+      const result = await fetch(
+        `/api/lists"`
+      );
       return await result.json();
     },
     queryKey: ["lists"],
   });
 
-  const addVehiclesToListMutation = useMutation({
-    mutationFn: async (selectedListId: string | number) => {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/lists/${selectedListId}/vehicles`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          vehicleIds: selectedVehicleNodes.map((n) => n?.data?.id),
-        }),
-      });
-    },
-  });
+  const addVehiclesToListMutation = useAddVehiclesToListMutation();
 
-  const handleOnChange = (data: string | number) => {
-    addVehiclesToListMutation.mutate(data);
-    onSave(data as number);
+  const handleOnChange = (selectedListId: string | number) => {
+    addVehiclesToListMutation.mutate(
+      { selectedListId, selectedVehicleNodes },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["vehiclesByList", selectedListId],
+          });
+        },
+      }
+    );
+    onSave(selectedListId as number);
   };
 
   return (

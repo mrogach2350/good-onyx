@@ -1,1 +1,0 @@
-ALTER TABLE "vehicles" ADD COLUMN "deletedAt" timestamp;
