@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 
-export const useDeleteVehiclesMutation = () =>
+const useDeleteVehiclesMutation = () =>
   useMutation({
     mutationFn: async ({ vehicleIds }: { vehicleIds: number[] }) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/vehicles`, {
+      const res = await fetch(`/api/vehicles`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -16,10 +16,10 @@ export const useDeleteVehiclesMutation = () =>
     },
   });
 
-export const useGetOfferMutation = () =>
+const useGetOfferMutation = () =>
   useMutation({
     mutationFn: async ({ vin, mileage, id }: any) => {
-      return await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/enqueue`, {
+      return await fetch(`/api/enqueue`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,10 +33,10 @@ export const useGetOfferMutation = () =>
     },
   });
 
-export const useAuctionScraperMutation = () =>
+const useAuctionScraperMutation = () =>
   useMutation({
     mutationFn: async ({ scraperUrl }: { scraperUrl: string }) => {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/receive-auctions`, {
+      await fetch(`/api/receive-auctions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,10 +48,10 @@ export const useAuctionScraperMutation = () =>
     },
   });
 
-export const useUndoDeleteVehiclesMutation = () =>
+const useUndoDeleteVehiclesMutation = () =>
   useMutation({
     mutationFn: async ({ vehicleIds }: { vehicleIds: number[] }) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/vehicles/undo`, {
+      const res = await fetch(`/api/vehicles/undo`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,11 +64,11 @@ export const useUndoDeleteVehiclesMutation = () =>
     },
   });
 
-export const useGetAuctionBidsMutation = () =>
+const useGetAuctionBidsMutation = () =>
   useMutation({
     mutationFn: async ({ selectedNodes }: any) => {
       const httpCalls = selectedNodes.map((node: any) => {
-        return fetch(`${process.env.NEXT_PUBLIC_BASE_SERVER_URL}/get-bids`, {
+        return fetch(`/api/get-bids`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -83,10 +83,10 @@ export const useGetAuctionBidsMutation = () =>
     },
   });
 
-export const useUpdateNoteMutation = () =>
+const useUpdateNoteMutation = () =>
   useMutation<any, unknown, { id: number; note: string }>({
     mutationFn: async ({ id, note }) => {
-      await fetch(`${process.env.NEXT_PUBLIC_NEXT_PUBLIC_BASE_SERVER_URL}/vehicles`, {
+      await fetch(`/api/vehicles`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -98,3 +98,60 @@ export const useUpdateNoteMutation = () =>
       });
     },
   });
+
+const useAddVehiclesToListMutation = () => useMutation({
+  mutationFn: async ({
+    selectedListId,
+    selectedVehicleNodes,
+  }: {
+    selectedListId: string | number;
+    selectedVehicleNodes: any[];
+  }) => {
+    await fetch(
+      `/api/lists/${selectedListId}/vehicles`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vehicleIds: selectedVehicleNodes.map((n) => n?.data?.id),
+        }),
+      }
+    );
+  },
+})
+
+const useRemoveVehiclesFromListMutation = () => useMutation({
+  mutationFn: async ({
+    selectedListId,
+    selectedVehicleNodes,
+  }: {
+    selectedListId: string | number;
+    selectedVehicleNodes: any[];
+  }) => {
+    await fetch(
+      `/api/lists/${selectedListId}/vehicles`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vehicleIds: selectedVehicleNodes.map((n) => n?.data?.id),
+        }),
+      }
+    );
+  },
+})
+
+export {
+  useDeleteVehiclesMutation,
+  useGetOfferMutation,
+  useAuctionScraperMutation,
+  useUndoDeleteVehiclesMutation,
+  useGetAuctionBidsMutation,
+  useUpdateNoteMutation,
+  useAddVehiclesToListMutation,
+  useRemoveVehiclesFromListMutation,
+}

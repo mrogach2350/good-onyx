@@ -4,6 +4,7 @@ import {
   createList,
   getVehiclesByListId,
   addVehiclesToList,
+  removeVehiclesFromList,
 } from "../db/interactions/lists";
 
 const getAllListsHandler = async (req: Request, res: Response) => {
@@ -71,10 +72,27 @@ const addVehiclesToListHandler = async (req: Request, res: Response) => {
   }
 };
 
+const removeVehiclesFromListHandler = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { vehicleIds } = req.body;
+    await removeVehiclesFromList(parseInt(id as string), vehicleIds);
+    res.json({
+      success: true,
+    });
+  } catch (e) {
+    res.json({
+      success: false,
+      error: e,
+    });
+  }
+};
+
 export {
   getAllListsHandler,
   getListByIdHandler,
   createListHandler,
   getListVehiclesHandler,
   addVehiclesToListHandler,
+  removeVehiclesFromListHandler,
 };

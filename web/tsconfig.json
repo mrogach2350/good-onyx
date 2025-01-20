@@ -18,6 +18,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "next-logger.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "next-logger.config.js", "public"],
   "exclude": ["node_modules"]
 }

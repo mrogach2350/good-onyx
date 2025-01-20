@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const vehicles = pgTable("vehicles", {
+const vehicles = pgTable("vehicles", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: text(),
   listNumber: text(),
@@ -27,7 +27,7 @@ export const vehicles = pgTable("vehicles", {
   deletedAt: timestamp(),
 });
 
-export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
+const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
   offers: many(offers),
   vehiclesToLists: many(vehiclesToLists),
   auction: one(auctions, {
@@ -36,7 +36,7 @@ export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
   }),
 }));
 
-export const offers = pgTable("offers", {
+const offers = pgTable("offers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   amount: integer(),
   retrivedAt: timestamp().defaultNow(),
@@ -46,34 +46,34 @@ export const offers = pgTable("offers", {
   vehicleId: integer().references(() => vehicles.id, { onDelete: "cascade" }),
 });
 
-export const offersRelations = relations(offers, ({ one }) => ({
+const offersRelations = relations(offers, ({ one }) => ({
   vehicle: one(vehicles, {
     fields: [offers.vehicleId],
     references: [vehicles.id],
   }),
 }));
 
-export const auctions = pgTable("auctions", {
+const auctions = pgTable("auctions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   company: text(),
   url: text(),
 });
 
-export const auctionsRelations = relations(auctions, ({ many }) => ({
+const auctionsRelations = relations(auctions, ({ many }) => ({
   vehicles: many(vehicles),
 }));
 
-export const lists = pgTable("lists", {
+const lists = pgTable("lists", {
   id: serial("id").primaryKey(),
   title: text().notNull().unique(),
   description: text(),
 });
 
-export const listsRelations = relations(lists, ({ many }) => ({
+const listsRelations = relations(lists, ({ many }) => ({
   vehiclesToLists: many(vehiclesToLists),
 }));
 
-export const vehiclesToLists = pgTable(
+const vehiclesToLists = pgTable(
   "vehicles_to_lists",
   {
     vehicleId: integer()
@@ -86,16 +86,26 @@ export const vehiclesToLists = pgTable(
   (t) => [primaryKey({ columns: [t.vehicleId, t.listId] })]
 );
 
-export const vehiclesToListsRelations = relations(
+const vehiclesToListsRelations = relations(vehiclesToLists, ({ one }) => ({
+  vehicle: one(vehicles, {
+    fields: [vehiclesToLists.vehicleId],
+    references: [vehicles.id],
+  }),
+  list: one(lists, {
+    fields: [vehiclesToLists.listId],
+    references: [lists.id],
+  }),
+}));
+
+export {
+  vehicles,
+  vehiclesRelations,
+  offers,
+  offersRelations,
+  auctions,
+  auctionsRelations,
+  lists,
+  listsRelations,
   vehiclesToLists,
-  ({ one }) => ({
-    vehicle: one(vehicles, {
-      fields: [vehiclesToLists.vehicleId],
-      references: [vehicles.id],
-    }),
-    list: one(lists, {
-      fields: [vehiclesToLists.listId],
-      references: [lists.id],
-    }),
-  })
-);
+  vehiclesToListsRelations,
+};

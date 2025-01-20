@@ -1,1 +1,0 @@
-ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_vin_unique" UNIQUE("vin");

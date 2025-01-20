@@ -56,7 +56,7 @@ export const addVehiclesToList = async (
         .onConflictDoNothing({
           where: and(
             eq(vehiclesToLists.listId, listId),
-            eq(vehiclesToLists.vehicleId, listId)
+            eq(vehiclesToLists.vehicleId, id)
           ),
         })
     )
@@ -74,7 +74,7 @@ export const removeVehiclesFromList = async (
         .where(
           and(
             eq(vehiclesToLists.listId, listId),
-            eq(vehiclesToLists.vehicleId, listId)
+            eq(vehiclesToLists.vehicleId, id)
           )
         )
     )
