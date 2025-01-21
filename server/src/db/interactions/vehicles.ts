@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../index";
-import { vehicles } from "../schema";
+import { vehicles, type InsertVehicle, type SelectVehicle } from "../schema";
 
 export const getAllVehicles = async () => {
   const vehicles = await db.query.vehicles.findMany({
@@ -38,7 +38,13 @@ export const getVehicleById = async (id: number) => {
   };
 };
 
-export const createVehicle = async (vehicle: any) => {
+export const getVehicleByVin = async (vin: string) => {
+  return await db.query.vehicles.findFirst({
+    where: eq(vehicles.vin, vin),
+  });
+};
+
+export const createVehicle = async (vehicle: InsertVehicle) => {
   await db
     .insert(vehicles)
     .values(vehicle)
@@ -48,7 +54,7 @@ export const createVehicle = async (vehicle: any) => {
     });
 };
 
-export const updateVehicle = async (vehicle: any) => {
+export const updateVehicle = async (vehicle: SelectVehicle) => {
   const { id, ...vehicleData } = vehicle;
 
   await db
@@ -58,16 +64,16 @@ export const updateVehicle = async (vehicle: any) => {
 };
 
 export const bulkCreateVehicle = async (
-  newVehicles: any[],
+  newVehicles: InsertVehicle[],
   auctionRecordId = 0
 ) => {
   newVehicles
-    .filter((v: any) => v.vin !== "" && v.url !== "")
-    .map((v: any) => ({
+    .filter((v: InsertVehicle) => v.vin !== "" && v.url !== "")
+    .map((v: InsertVehicle) => ({
       auctionId: auctionRecordId,
       ...v,
     }))
-    .forEach(async (v: any) => {
+    .forEach(async (v: InsertVehicle) => {
       try {
         await db
           .insert(vehicles)

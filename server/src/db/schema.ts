@@ -6,7 +6,11 @@ import {
   serial,
   primaryKey,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import {
+  relations,
+  type InferSelectModel,
+  type InferInsertModel,
+} from "drizzle-orm";
 
 const vehicles = pgTable("vehicles", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -96,6 +100,15 @@ const vehiclesToListsRelations = relations(vehiclesToLists, ({ one }) => ({
     references: [lists.id],
   }),
 }));
+
+export type SelectAuctions = InferSelectModel<typeof auctions>;
+export type InsertAuctions = InferInsertModel<typeof auctions>;
+export type SelectVehicle = InferSelectModel<typeof vehicles>;
+export type InsertVehicle = InferInsertModel<typeof vehicles>;
+export type SelectList = InferSelectModel<typeof lists>;
+export type InsertList = InferInsertModel<typeof lists>;
+export type SelectOffer = InferSelectModel<typeof offers>;
+export type InsertOffer = InferInsertModel<typeof offers>;
 
 export {
   vehicles,

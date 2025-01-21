@@ -13,11 +13,11 @@ const getAuctionsHandler = async (req: Request, res: Response) => {
   }
 
   try {
-    const { allListings, auction } = await getAuctions(auctionUrl);
+    const { vehicles, auction } = await getAuctions(auctionUrl);
 
     res.json({
       success: true,
-      allListings,
+      vehicles,
       auction,
     });
   } catch (error) {
@@ -31,11 +31,11 @@ const getAuctionsHandler = async (req: Request, res: Response) => {
 };
 
 const getOfferHandler = async (req: Request, res: Response) => {
-  const { vin = "", mileage = 0 } = req.body;
-  if (vin === "" || mileage === 0) {
+  const { vin = "", mileage = 0, id = 0 } = req.body;
+  if (vin === "" || mileage === 0 || id === 0) {
     res.json({
       error: true,
-      message: "offer getter requires VIN and Mileage",
+      message: "offer getter requires VIN, Mileage, and ID",
     });
   }
 
@@ -43,10 +43,11 @@ const getOfferHandler = async (req: Request, res: Response) => {
     const offerData = await getOfferForVehicle({
       vin,
       mileage,
+      vehicleId: id,
     });
 
     res.json({
-      success: true,
+      error: false,
       ...offerData,
     });
   } catch (error) {
@@ -60,14 +61,14 @@ const getOfferHandler = async (req: Request, res: Response) => {
 };
 
 const getBidHandler = async (req: Request, res: Response) => {
-  const { auctionUrl } = req.body;
+  const { vehicle } = req.body;
 
   try {
-    const bidData = await getAuctionBid(auctionUrl);
+    const updatedVehicle = await getAuctionBid(vehicle);
 
     res.json({
       success: true,
-      bidData,
+      updatedVehicle,
     });
   } catch (error) {
     if (error instanceof Error) {

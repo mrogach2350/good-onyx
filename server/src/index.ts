@@ -102,13 +102,14 @@ httpServer.listen(4000, () => {
     "get_offer",
     async (job) => {
       logger.info(`starting job ${job.name}`);
-      const { vin = "", mileage = 0 } = job.data;
-      if (vin === "" || mileage === 0) return null;
+      const { vin = "", mileage = 0, id = 0 } = job.data;
+      if (vin === "" || mileage === 0 || id === 0) return null;
 
       try {
         const offerData = await getOfferForVehicle({
           vin,
           mileage,
+          vehicleId: id,
         });
 
         return {
