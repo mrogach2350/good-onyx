@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { type SelectVehicle } from "../db/schema";
 import {
   getAllVehicles,
   getVehicleById,
@@ -28,9 +29,9 @@ const getVehicleByIdHandler = async (req: Request, res: Response) => {
 
 const updateVehicleHandler = async (req: Request, res: Response) => {
   const { id, note } = req.body;
-  
+
   try {
-    await updateVehicle({ id, note });
+    await updateVehicle({ id, note } as SelectVehicle);
     res.json({
       success: true,
       message: "vehicle updated",
