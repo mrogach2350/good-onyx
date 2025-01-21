@@ -15,6 +15,8 @@ import {
   getAllListsHandler,
   getListByIdHandler,
   createListHandler,
+  updateListHandler,
+  deleteListHandler,
   getListVehiclesHandler,
   addVehiclesToListHandler,
   removeVehiclesFromListHandler,
@@ -72,13 +74,12 @@ vehiclesRouter
 vehiclesRouter.post("/undo", undoDeleteVehiclesHandler);
 vehiclesRouter.route("/:id").get(getVehicleByIdHandler);
 
+listsRouter.route("/").get(getAllListsHandler).post(createListHandler);
 listsRouter
-  .route("/")
-  .get(getAllListsHandler)
-  .post(createListHandler)
-  .put(updateVehicleHandler)
-  .delete(deleteVehicleHandler);
-listsRouter.route("/:id").get(getListByIdHandler);
+  .route("/:id")
+  .get(getListByIdHandler)
+  .put(updateListHandler)
+  .delete(deleteListHandler);
 listsRouter
   .route("/:id/vehicles")
   .get(getListVehiclesHandler)
@@ -91,10 +92,12 @@ app.post("/get-bid", getBidHandler);
 
 httpServer.listen(4000, () => {
   logger.info("listening on port 4000");
-  const REDIS_HOST = process.env.REDIS_HOST || "keydb"
+
+  const REDIS_HOST = process.env.REDIS_HOST || "keydb";
   const connection = new IORedis(6379, REDIS_HOST, {
     maxRetriesPerRequest: null,
   });
+
   const worker = new Worker(
     "get_offer",
     async (job) => {

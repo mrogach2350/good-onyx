@@ -78,10 +78,10 @@ const vehiclesToLists = pgTable(
   {
     vehicleId: integer()
       .notNull()
-      .references(() => vehicles.id),
+      .references(() => vehicles.id, { onDelete: "cascade" }),
     listId: integer()
       .notNull()
-      .references(() => lists.id),
+      .references(() => lists.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.vehicleId, t.listId] })]
 );

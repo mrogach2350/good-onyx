@@ -2,12 +2,12 @@ import { eq, and } from "drizzle-orm";
 import { db } from "../index";
 import { lists, vehiclesToLists, vehicles } from "../schema";
 
-export const getAllLists = async () => {
+const getAllLists = async () => {
   const lists = await db.query.lists.findMany({});
   return lists;
 };
 
-export const getAllListsWithVehicles = async () => {
+const getAllListsWithVehicles = async () => {
   const lists = await db.query.lists.findMany({
     with: {
       vehiclesToLists: {
@@ -21,7 +21,7 @@ export const getAllListsWithVehicles = async () => {
   return lists;
 };
 
-export const getListById = async (id: number) => {
+const getListById = async (id: number) => {
   const list = await db.query.lists.findFirst({
     with: {
       vehiclesToLists: {
@@ -36,7 +36,7 @@ export const getListById = async (id: number) => {
   return list;
 };
 
-export const createList = async (list: any) => {
+const createList = async (list: any) => {
   try {
     return await db.insert(lists).values(list).returning({ id: lists.id });
   } catch (e) {
@@ -44,10 +44,30 @@ export const createList = async (list: any) => {
   }
 };
 
-export const addVehiclesToList = async (
-  listId: number,
-  vehicleIds: number[]
-) => {
+const updateList = async (list: any) => {
+  try {
+    return await db
+      .update(lists)
+      .set({ title: list.name })
+      .where(eq(lists.id, list.id))
+      .returning({ id: lists.id });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const deleteList = async (list: any) => {
+  try {
+    return await db
+      .delete(lists)
+      .where(eq(lists.id, list.id))
+      .returning({ id: lists.id });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const addVehiclesToList = async (listId: number, vehicleIds: number[]) => {
   await Promise.all(
     vehicleIds.map((id) =>
       db
@@ -63,10 +83,7 @@ export const addVehiclesToList = async (
   );
 };
 
-export const removeVehiclesFromList = async (
-  listId: number,
-  vehicleIds: number[]
-) => {
+const removeVehiclesFromList = async (listId: number, vehicleIds: number[]) => {
   await Promise.all(
     vehicleIds.map((id) =>
       db
@@ -81,7 +98,7 @@ export const removeVehiclesFromList = async (
   );
 };
 
-export const getVehiclesByListId = async (listId: number) => {
+const getVehiclesByListId = async (listId: number) => {
   const results = await db
     .select()
     .from(vehiclesToLists)
@@ -90,4 +107,16 @@ export const getVehiclesByListId = async (listId: number) => {
     .where(eq(lists.id, listId));
 
   return results.map((result) => result.vehicles);
+};
+
+export {
+  getAllLists,
+  getAllListsWithVehicles,
+  getListById,
+  createList,
+  updateList,
+  deleteList,
+  addVehiclesToList,
+  removeVehiclesFromList,
+  getVehiclesByListId,
 };
