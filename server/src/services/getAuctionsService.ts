@@ -1,5 +1,8 @@
 import * as cheerio from "cheerio";
 import { logger } from "../index";
+import { type InsertVehicle } from "../db/schema";
+import { upsertAuction } from "../db/interactions/auctions";
+import { bulkCreateVehicle } from "../db/interactions/vehicles";
 
 function extractCompanyFromUrl(url: string): string {
   // Implement your company extraction logic here
@@ -11,7 +14,7 @@ export const getAuctions = async (auctionListUrl: string) => {
   try {
     const urlObj = new URL(auctionListUrl);
     const baseSiteUrl = urlObj.hostname;
-    const allListings: any[] = [];
+    const allListings: InsertVehicle[] = [];
     const companyName = extractCompanyFromUrl(auctionListUrl);
     let currentUrl = auctionListUrl;
     // In TypeScript, we'll need to interact with your database/ORM here
@@ -90,10 +93,17 @@ export const getAuctions = async (auctionListUrl: string) => {
       // Optional delay to be nice to the server
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+    
+    const cleanListings = allListings.filter((listing) => listing.vin);
+    const newAuction = await upsertAuction(auction);
+    const newVehicles = await bulkCreateVehicle(
+      cleanListings,
+      newAuction[0]?.id
+    );
 
     return {
-      allListings,
-      auction,
+      auction: newAuction,
+      vehicles: newVehicles,
     };
   } catch (error) {
     console.error("Error scraping auction:", error);

@@ -1,7 +1,16 @@
 import { firefox } from "playwright";
 import { logger } from "../index";
+import { createOffer } from "../db/interactions/offers";
 
-export const getOfferForVehicle = async ({ vin, mileage }: any) => {
+export const getOfferForVehicle = async ({
+  vin,
+  mileage,
+  vehicleId,
+}: {
+  vin: string;
+  mileage: number;
+  vehicleId: number;
+}) => {
   const RECEIVER_EMAIL = "quotes.estimator@proton.me";
   const browser = await firefox.launch({
     headless: true,
@@ -164,7 +173,7 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
     .all();
 
   for (let index = 0; index < fieldsets.length; index++) {
-    logger.info(`\nProcessing fieldset ${index + 1}`);
+    logger.info(`Processing fieldset ${index + 1}`);
 
     // Find first radio in fieldset
     const firstRadio = await fieldsets[index]
@@ -212,11 +221,8 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
     logger.info("Inelegible for instant offer");
     // browser.close();
     return {
-      vin,
-      mileage,
-      offer: {
-        elegible: false,
-      },
+      error: true,
+      message: "Offer is ineligible for instant offer",
     };
   }
   const offerElement = await page.waitForSelector('[data-qa="offer-amount"]');
@@ -246,14 +252,17 @@ export const getOfferForVehicle = async ({ vin, mileage }: any) => {
   logger.info(`Valid until: ${validUntilDate.toLocaleDateString()}`);
 
   browser.close();
-  return {
-    vin,
-    mileage,
-    offer: {
-      elegible: true,
+
+  const newOffer = await createOffer(
+    {
       amount: cleanedAmount,
       code: offerCode,
       validUntil: validUntilDate,
     },
+    vehicleId
+  );
+
+  return {
+    newOffer,
   };
 };

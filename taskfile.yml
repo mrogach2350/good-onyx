@@ -25,3 +25,8 @@ tasks:
       - task: migrate
       - task: docker:deploy-server
       - task: docker:deploy-web
+  short-deploy:
+    cmds:
+      - task: migrate
+      - task: docker:deploy-server
+      - task: docker:deploy-web

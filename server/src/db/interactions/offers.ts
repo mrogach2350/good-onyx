@@ -1,7 +1,10 @@
 import { db } from "../index";
-import { offers } from "../schema";
+import { offers, type InsertOffer } from "../schema";
 
-export const createOffer = async (offer: any, vehicleId = 0) => {
+export const createOffer = async (
+  offer: InsertOffer,
+  vehicleId: number = 0
+) => {
   if (!offer?.code || !offer?.validUntil) return;
   try {
     return await db

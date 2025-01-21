@@ -11,11 +11,14 @@ import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
 import { ColDef, themeQuartz, colorSchemeDarkBlue } from "ag-grid-community";
 import { secondsToHms } from "@/helpers";
 import { getVehicleByIdQuery } from "@/queries";
+import { useGetAuctionBidsMutation } from "@/mutations";
 
 const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
 export default function VehicleShow() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const getAuctionBidsMutation = useGetAuctionBidsMutation();
+
   const [scrapingError, setScrapingError] = useState<string>("");
   const [editNote, setEditNote] = useState<boolean>(false);
   const [vehicleNoteValue, setVehicleNoteValue] = useState<string>("");
@@ -98,24 +101,6 @@ export default function VehicleShow() {
     },
   });
 
-  const getVehicleBidMutation = useMutation({
-    mutationFn: async () => {
-      await fetch("/api/vehicles/get-bids", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          vehicleId: data?.vehicle.id,
-          auctionUrl: data?.vehicle.url,
-        }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vehicle"] });
-    },
-  });
-
   const handleDiscard = () => {
     setEditNote(false);
     setVehicleNoteValue(data?.vehicle.note);
@@ -126,7 +111,7 @@ export default function VehicleShow() {
     getOfferMutation.isPending ||
     deleteListingMutation.isPending ||
     saveNoteMutation.isPending ||
-    getVehicleBidMutation.isPending;
+    getAuctionBidsMutation.isPending;
 
   return (
     <div className="section">
@@ -182,9 +167,22 @@ export default function VehicleShow() {
                 {secondsToHms(data?.vehicle?.secondsLeftToBid)}
               </span>
               <button
-                onClick={() => getVehicleBidMutation.mutate()}
+                onClick={() =>
+                  getAuctionBidsMutation.mutate(
+                    { selectedNodes: [data] },
+                    {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({
+                          queryKey: ["vehicle"],
+                        });
+                      },
+                    }
+                  )
+                }
                 className="button is-small is-info">
-                {getVehicleBidMutation.isPending ? "Loading..." : "Refresh bid"}
+                {getAuctionBidsMutation.isPending
+                  ? "Loading..."
+                  : "Refresh bid"}
               </button>
             </p>
             <p></p>

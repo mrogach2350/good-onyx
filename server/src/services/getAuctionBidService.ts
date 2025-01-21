@@ -1,7 +1,9 @@
 import * as cheerio from "cheerio";
+import { SelectVehicle } from "../db/schema";
+import { updateVehicle } from "../db/interactions/vehicles";
 
-export const getAuctionBid = async (auctionUrl: string) => {
-  const response = await fetch(`https://${auctionUrl}`);
+export const getAuctionBid = async (vehicle: SelectVehicle) => {
+  const response = await fetch(`https://${vehicle.url}`);
   const html = await response.text();
   const $ = cheerio.load(html);
 
@@ -18,8 +20,13 @@ export const getAuctionBid = async (auctionUrl: string) => {
     .replace(/\s+/g, " ") // remove escaped characters
     .trim();
 
+  const updatedVehicle = await updateVehicle({
+    ...vehicle,
+    secondsLeftToBid: parseInt(secondsLeftToBid),
+    currentBidAmount: bidAmount,
+  });
+
   return {
-    secondsLeftToBid,
-    bidAmount,
+    vehicle: updatedVehicle,
   };
 };
