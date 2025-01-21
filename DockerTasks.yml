@@ -9,10 +9,10 @@ tasks:
       - docker compose up -d db keydb
   deploy-web:
     cmds:
-      - docker compose -d --build up web
+      - docker compose up web -d --build
   deploy-server:
     cmds:
-      - docker compose -d --build up server
+      - docker compose up server -d --build
   create-postgres-dev:
     cmds:
       - docker run --name drizzle-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres
