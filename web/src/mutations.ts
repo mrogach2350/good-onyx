@@ -19,7 +19,7 @@ const useDeleteVehiclesMutation = () =>
 const useGetOfferMutation = () =>
   useMutation({
     mutationFn: async ({ vin, mileage, id }: any) => {
-      return await fetch(`/api/enqueue`, {
+      return await fetch(`/api/get-offer`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +36,7 @@ const useGetOfferMutation = () =>
 const useAuctionScraperMutation = () =>
   useMutation({
     mutationFn: async ({ scraperUrl }: { scraperUrl: string }) => {
-      await fetch(`/api/receive-auctions`, {
+      await fetch(`/api/get-auctions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,14 +68,13 @@ const useGetAuctionBidsMutation = () =>
   useMutation({
     mutationFn: async ({ selectedNodes }: any) => {
       const httpCalls = selectedNodes.map((node: any) => {
-        return fetch(`/api/get-bids`, {
+        return fetch(`/api/get-bid`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            vehicleId: node?.data?.id,
-            auctionUrl: node?.data?.url,
+            vehicle: node?.data,
           }),
         });
       });
