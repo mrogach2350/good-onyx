@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
+import { logger } from "../index";
 import {
   getAllLists,
   createList,
+  updateList,
+  deleteList,
   getVehiclesByListId,
   addVehiclesToList,
   removeVehiclesFromList,
@@ -31,6 +34,41 @@ const createListHandler = async (req: Request, res: Response) => {
     res.json({
       success: true,
       listId: !!createdLists && createdLists[0].id,
+    });
+  } catch (e) {
+    res.json({
+      success: false,
+      error: e,
+    });
+  }
+};
+
+const updateListHandler = async (req: Request, res: Response) => {
+  const { id = 0 } = req.params;
+  const { title = "" } = req.body;
+  try {
+    const updatedListId = await updateList({ title, id });
+    res.json({
+      success: true,
+      listId: updatedListId,
+    });
+  } catch (e) {
+    res.json({
+      success: false,
+      error: e,
+    });
+  }
+};
+
+const deleteListHandler = async (req: Request, res: Response) => {
+  const { id = 0 } = req.params;
+  logger.debug({ id });
+
+  try {
+    const deletedList = await deleteList({ id });
+    res.json({
+      success: true,
+      listId: deletedList,
     });
   } catch (e) {
     res.json({
@@ -92,6 +130,8 @@ export {
   getAllListsHandler,
   getListByIdHandler,
   createListHandler,
+  updateListHandler,
+  deleteListHandler,
   getListVehiclesHandler,
   addVehiclesToListHandler,
   removeVehiclesFromListHandler,

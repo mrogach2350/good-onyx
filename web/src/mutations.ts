@@ -99,17 +99,28 @@ const useUpdateNoteMutation = () =>
     },
   });
 
-const useAddVehiclesToListMutation = () => useMutation({
-  mutationFn: async ({
-    selectedListId,
-    selectedVehicleNodes,
-  }: {
-    selectedListId: string | number;
-    selectedVehicleNodes: any[];
-  }) => {
-    await fetch(
-      `/api/lists/${selectedListId}/vehicles`,
-      {
+const useDeleteListMutation = () =>
+  useMutation({
+    mutationFn: async ({ listId }: { listId: any }) => {
+      await fetch(`/api/lists/${listId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    },
+  });
+
+const useAddVehiclesToListMutation = () =>
+  useMutation({
+    mutationFn: async ({
+      selectedListId,
+      selectedVehicleNodes,
+    }: {
+      selectedListId: string | number;
+      selectedVehicleNodes: any[];
+    }) => {
+      await fetch(`/api/lists/${selectedListId}/vehicles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,22 +128,20 @@ const useAddVehiclesToListMutation = () => useMutation({
         body: JSON.stringify({
           vehicleIds: selectedVehicleNodes.map((n) => n?.data?.id),
         }),
-      }
-    );
-  },
-})
+      });
+    },
+  });
 
-const useRemoveVehiclesFromListMutation = () => useMutation({
-  mutationFn: async ({
-    selectedListId,
-    selectedVehicleNodes,
-  }: {
-    selectedListId: string | number;
-    selectedVehicleNodes: any[];
-  }) => {
-    await fetch(
-      `/api/lists/${selectedListId}/vehicles`,
-      {
+const useRemoveVehiclesFromListMutation = () =>
+  useMutation({
+    mutationFn: async ({
+      selectedListId,
+      selectedVehicleNodes,
+    }: {
+      selectedListId: string | number;
+      selectedVehicleNodes: any[];
+    }) => {
+      await fetch(`/api/lists/${selectedListId}/vehicles`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -140,10 +149,9 @@ const useRemoveVehiclesFromListMutation = () => useMutation({
         body: JSON.stringify({
           vehicleIds: selectedVehicleNodes.map((n) => n?.data?.id),
         }),
-      }
-    );
-  },
-})
+      });
+    },
+  });
 
 export {
   useDeleteVehiclesMutation,
@@ -152,6 +160,7 @@ export {
   useUndoDeleteVehiclesMutation,
   useGetAuctionBidsMutation,
   useUpdateNoteMutation,
+  useDeleteListMutation,
   useAddVehiclesToListMutation,
   useRemoveVehiclesFromListMutation,
-}
+};

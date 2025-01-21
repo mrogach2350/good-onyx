@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dropdown, Modal, Button, Form } from "react-bulma-components";
+import { Dropdown, Modal, Button, Form, Box } from "react-bulma-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import { useDeleteListMutation } from "@/mutations";
 
 export default function ListDropdown({
   selectedListId,
@@ -12,21 +13,25 @@ export default function ListDropdown({
   onChange: (n: number) => void;
 }) {
   const [showNewListModal, setShowNewListModal] = useState<boolean>(false);
+  const [showDeleteListModal, setShowDeleteModal] = useState<boolean>(false);
   const { data, isLoading } = useQuery({
     queryFn: async () => {
-      const result = await fetch(
-        `/api/lists`
-      );
+      const result = await fetch(`/api/lists`);
       return await result.json();
     },
     queryKey: ["lists"],
   });
 
   const handleOnChange = (data: string | number) => {
-    if (data === "createNew") {
-      setShowNewListModal(true);
-    } else {
-      onChange(data as number);
+    switch (data) {
+      case "createNew":
+        setShowNewListModal(true);
+        break;
+      case "deleteLists":
+        setShowDeleteModal(true);
+        break;
+      default:
+        onChange(data as number);
     }
   };
 
@@ -52,10 +57,19 @@ export default function ListDropdown({
           <Dropdown.Item renderAs="button" value="createNew">
             Create New List
           </Dropdown.Item>
+          <Dropdown.Item renderAs="button" value="deleteLists">
+            Delete Lists
+          </Dropdown.Item>
         </Dropdown>
       )}
       {showNewListModal && (
         <NewListModal onClose={() => setShowNewListModal(false)} />
+      )}
+      {showDeleteListModal && (
+        <DeleteListModal
+          lists={data?.lists}
+          onClose={() => setShowDeleteModal(false)}
+        />
       )}
     </div>
   );
@@ -106,6 +120,47 @@ export function NewListModal({ onClose }: { onClose: () => void }) {
             Cancel
           </Button>
         </div>
+      </Modal.Content>
+    </Modal>
+  );
+}
+
+export function DeleteListModal({
+  lists,
+  onClose,
+}: {
+  lists: any[];
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const deleteListMutation = useDeleteListMutation();
+
+  const handleDelete = (listId: any) => {
+    deleteListMutation.mutate(
+      { listId },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["lists"] });
+          onClose();
+        },
+      }
+    );
+  };
+
+  return (
+    <Modal show={true} showClose onClose={onClose}>
+      <Modal.Content>
+        <p className="subtitle is-4">Delete Lists</p>
+        {lists?.map((list) => (
+          <Box key={list.id}>
+            <div className="flex justify-between items-center">
+              <span>{list.title}</span>
+              <Button color="danger" onClick={() => handleDelete(list.id)}>
+                Delete
+              </Button>
+            </div>
+          </Box>
+        ))}
       </Modal.Content>
     </Modal>
   );
