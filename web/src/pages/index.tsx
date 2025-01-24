@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/router";
 import { getSelectorsByUserAgent } from "react-device-detect";
 import {
@@ -17,7 +17,7 @@ import {
 import NoteModal from "@/components/NoteModal";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
-import { getColDefs } from "@/helpers";
+import { getColDefs } from "@/utils/helpers";
 import { getAllVehiclesQuery } from "@/queries";
 import {
   useDeleteVehiclesMutation,
@@ -39,6 +39,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>({});
   const [gettingOfferId, setGettingOfferId] = useState<any>(null);
   const [selectedListId, setSelectedListId] = useState<number>(0);
+  const [showCostEstimates, setShowCostEstimates] = useState<boolean>(false);
 
   const onGetOffer = (node: any) => {
     const { vin, mileage, id } = node.data;
@@ -46,47 +47,44 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     getOfferMutation.mutate(
       { vin, mileage, id },
       {
-        onSuccess: async (data) => {
+        onSuccess: async () => {
           queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-          // const { success, message = "" } = await data.json();
-          // if (!success) {
-          //   setScrapingError(message);
-          // } else {
-          //   setScrapingError("");
-          //   queryClient.invalidateQueries({ queryKey: ["vehicle"] });
-          // }
         },
         onSettled: () => setGettingOfferId(null),
       }
     );
   };
 
-  const colDefs: ColDef[] = getColDefs(({ node }: { node: any }) => {
-    return (
-      <div className="flex space-x-3 items-center h-full">
-        <button
-          onClick={() => router.push(`/vehicles/${node.data.id}`)}
-          className="button is-info is-small">
-          View
-        </button>
-        <button
-          onClick={() => {
-            setSelectedVehicle({ id: node.data.id, note: node.data.note });
-            setShowNoteModal(true);
-          }}
-          className="button is-info is-small">
-          Note
-        </button>
-        <button
-          onClick={() => onGetOffer(node)}
-          className="button is-info is-small">
-          {getOfferMutation.isPending && gettingOfferId === node.data.id
-            ? "Loading..."
-            : "Get Offer"}
-        </button>
-      </div>
-    );
-  });
+  const colDefs: ColDef[] = useMemo(
+    () =>
+      getColDefs(({ node }: { node: any }) => {
+        return (
+          <div className="flex space-x-3 items-center h-full">
+            <button
+              onClick={() => router.push(`/vehicles/${node.data.id}`)}
+              className="button is-info is-small">
+              View
+            </button>
+            <button
+              onClick={() => {
+                setSelectedVehicle({ id: node.data.id, note: node.data.note });
+                setShowNoteModal(true);
+              }}
+              className="button is-info is-small">
+              Note
+            </button>
+            <button
+              onClick={() => onGetOffer(node)}
+              className="button is-info is-small">
+              {getOfferMutation.isPending && gettingOfferId === node.data.id
+                ? "Loading..."
+                : "Get Offer"}
+            </button>
+          </div>
+        );
+      }, showCostEstimates),
+    [showCostEstimates]
+  );
 
   const { data: allVehiclesData, isLoading: areVehiclesLoading } = useQuery({
     queryKey: ["vehicles"],
@@ -151,6 +149,8 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           setSelectedNodes={setSelectedNodes}
           selectedListId={selectedListId}
           setSelectedListId={setSelectedListId}
+          showCostEstimates={showCostEstimates}
+          setShowCostEstimates={setShowCostEstimates}
         />
       )}
       <div className="h-5/6">
