@@ -11,6 +11,7 @@ services:
     networks:
       - good_onyx_internal
       - good_onyx_public
+    restart: unless-stopped
   server:
     build: ./server
     environment:
@@ -18,6 +19,8 @@ services:
       - MIGRATE=true
     ports:
       - "4000:4000"
+    mem_limit: 2G
+    restart: unless-stopped
     networks:
       - good_onyx_internal
   db:
@@ -32,6 +35,7 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    restart: unless-stopped
   keydb:
     image: eqalpha/keydb
     networks:
@@ -40,7 +44,7 @@ services:
       - keydb_data:/data
     ports:
       - "6379:6379"
-
+    restart: unless-stopped
 networks:
   good_onyx_internal:
     driver: bridge
