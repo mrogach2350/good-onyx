@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 import { createLogger, format, transports } from "winston";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -41,6 +42,7 @@ const { combine, label, printf } = format;
 const myFormat = printf(({ level, message, label }) => {
   return `[${label}] ${level}: ${message}`;
 });
+
 export const logger = createLogger({
   format: combine(label({ label: "good-onyx-server" }), myFormat),
   transports: [
@@ -51,6 +53,7 @@ export const logger = createLogger({
 });
 
 app.use(cors());
+app.use(clerkMiddleware());
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
@@ -65,6 +68,8 @@ const vehiclesRouter = express.Router();
 const listsRouter = express.Router();
 app.use("/vehicles", vehiclesRouter);
 app.use("/lists", listsRouter);
+vehiclesRouter.use(requireAuth());
+listsRouter.use(requireAuth());
 
 vehiclesRouter
   .route("/")
