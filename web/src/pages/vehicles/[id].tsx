@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
 import { ColDef, themeQuartz, colorSchemeDarkBlue } from "ag-grid-community";
-import { secondsToHms } from "@/helpers";
+import { secondsToHms } from "@/utils/helpers";
 import { getVehicleByIdQuery } from "@/queries";
 import { useGetAuctionBidsMutation } from "@/mutations";
 

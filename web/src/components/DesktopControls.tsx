@@ -19,6 +19,8 @@ export default function DesktopControls({
   setSelectedNodes,
   selectedListId,
   setSelectedListId,
+  setShowCostEstimates,
+  showCostEstimates,
 }: any) {
   const queryClient = useQueryClient();
   const auctionScraperMutation = useAuctionScraperMutation();
@@ -106,6 +108,11 @@ export default function DesktopControls({
           onChange={handleListChange}
         />
         <div className="flex justify-end space-x-2 mb-2">
+          <button
+            className="button is-info"
+            onClick={() => setShowCostEstimates(!showCostEstimates)}>
+            {showCostEstimates ? "Show Current Bid" : "Show Estimated Cost"}
+          </button>
           {selectedListId !== 0 && (
             <RemoveFromListButton
               onDelete={onRemoveVehicleFromList}
@@ -133,9 +140,7 @@ export default function DesktopControls({
                 }
               )
             }>
-            {getAuctionBidsMutation.isPending
-              ? "Loading..."
-              : "Get Bids for Selected Rows"}
+            {getAuctionBidsMutation.isPending ? "Loading..." : "Get Bids"}
           </button>
           <button
             className="button is-danger"
