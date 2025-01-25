@@ -245,13 +245,13 @@ export const getOfferForVehicle = async ({
   const validUntilDate = new Date(validUntilText.replace("Valid through ", ""));
 
   logger.info("Offer details collected:");
-  logger.info(`VIN: $${vin}`);
-  logger.info(`Mileage: $${mileage}`);
+  logger.info(`VIN: ${vin}`);
+  logger.info(`Mileage: ${mileage}`);
   logger.info(`Amount: $${cleanedAmount}`);
   logger.info(`Code: ${offerCode}`);
   logger.info(`Valid until: ${validUntilDate.toLocaleDateString()}`);
 
-  browser.close();
+  await browser.close();
 
   const newOffer = await createOffer(
     {

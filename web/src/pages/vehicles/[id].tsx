@@ -11,13 +11,14 @@ import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
 import { ColDef, themeQuartz, colorSchemeDarkBlue } from "ag-grid-community";
 import { secondsToHms } from "@/utils/helpers";
 import { getVehicleByIdQuery } from "@/queries";
-import { useGetAuctionBidsMutation } from "@/mutations";
+import { useGetAuctionBidsMutation, useGetOfferMutation } from "@/mutations";
 
 const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
 export default function VehicleShow() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const getAuctionBidsMutation = useGetAuctionBidsMutation();
+  const getOfferMutation = useGetOfferMutation();
 
   const [scrapingError, setScrapingError] = useState<string>("");
   const [editNote, setEditNote] = useState<boolean>(false);
@@ -38,32 +39,6 @@ export default function VehicleShow() {
     { field: "validUntil" },
     { field: "retrivedAt" },
   ];
-
-  const getOfferMutation = useMutation({
-    mutationFn: async () => {
-      const { vin, mileage, id } = data?.vehicle;
-      return await fetch("/api/receive-offers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          vin,
-          mileage,
-          id,
-        }),
-      });
-    },
-    onSuccess: async (data) => {
-      const { success, message = "" } = await data.json();
-      if (!success) {
-        setScrapingError(message);
-      } else {
-        setScrapingError("");
-        queryClient.invalidateQueries({ queryKey: ["vehicle"] });
-      }
-    },
-  });
 
   const deleteListingMutation = useMutation({
     mutationFn: async () => {
@@ -100,6 +75,19 @@ export default function VehicleShow() {
       setEditNote(false);
     },
   });
+
+  const onGetOffer = () =>
+    getOfferMutation.mutate(data?.vehicle, {
+      onSuccess: async (data) => {
+        const { success, message = "" } = await data.json();
+        if (!success) {
+          setScrapingError(message);
+        } else {
+          setScrapingError("");
+          queryClient.invalidateQueries({ queryKey: ["vehicle"] });
+        }
+      },
+    });
 
   const handleDiscard = () => {
     setEditNote(false);
@@ -222,9 +210,7 @@ export default function VehicleShow() {
         <div>
           <div className="flex items-baseline space-x-2">
             <h3 className="subtitle">Offers</h3>
-            <button
-              className="button is-info is-small"
-              onClick={() => getOfferMutation.mutate()}>
+            <button className="button is-info is-small" onClick={onGetOffer}>
               {getOfferMutation.isPending ? "Loading..." : "Get Offer"}
             </button>
             {scrapingError && <p>{scrapingError}</p>}
