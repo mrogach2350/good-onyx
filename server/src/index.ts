@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 import { createLogger, format, transports } from "winston";
-import { createServer } from "http";
-import { Server } from "socket.io";
+// import { createServer } from "http";
+// import { Server } from "socket.io";
 import IORedis from "ioredis";
 import { Worker } from "bullmq";
 import { getOfferForVehicle } from "./services/getOfferService";
@@ -31,12 +31,12 @@ import {
 } from "./handlers/vehicles";
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
-});
+// const httpServer = createServer(app);
+// const io = new Server(httpServer, {
+//   cors: {
+//     origin: "*",
+//   },
+// });
 
 const { combine, label, printf } = format;
 const myFormat = printf(({ level, message, label }) => {
@@ -59,9 +59,9 @@ app.use((req, res, next) => {
   next();
 });
 
-io.on("connection", (socket) => {
-  logger.info("socket connected");
-});
+// io.on("connection", (socket) => {
+//   logger.info("socket connected");
+// });
 
 app.use(express.json());
 const vehiclesRouter = express.Router();
@@ -95,7 +95,7 @@ app.post("/get-auctions", getAuctionsHandler);
 app.post("/get-offer", getOfferHandler);
 app.post("/get-bid", getBidHandler);
 
-httpServer.listen(4000, () => {
+app.listen(4000, () => {
   logger.info("listening on port 4000");
 
   const REDIS_HOST = process.env.REDIS_HOST || "keydb";
@@ -133,6 +133,6 @@ httpServer.listen(4000, () => {
   );
 
   worker.on("completed", async (job) => {
-    io.emit("job-completed", job);
+    // io.emit("job-completed", job);
   });
 });
