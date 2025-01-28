@@ -19,6 +19,8 @@ export default function MobileControls({
   setSelectedNodes,
   selectedListId,
   setSelectedListId,
+  setShowCostEstimates,
+  showCostEstimates,
 }: any) {
   const queryClient = useQueryClient();
   const auctionScraperMutation = useAuctionScraperMutation();
@@ -102,7 +104,7 @@ export default function MobileControls({
           {auctionScraperMutation.isPending ? "Loading..." : "Submit"}
         </button>
       </div>
-      
+
       <div className="flex flex-col">
         <button
           className="button self-end is-primary my-1"
@@ -138,6 +140,14 @@ export default function MobileControls({
             </span>
           </Button>
         </div>
+        <div className="flex justify-end space-x-1 mb-1">
+          <button
+            className="button self-start is-primary"
+            onClick={() => setShowCostEstimates(!showCostEstimates)}>
+            {showCostEstimates ? "Show Current Bid" : "Show Estimated Cost"}
+          </button>
+        </div>
+
         <div className="flex justify-end space-x-1 mb-1">
           <ListDropdown
             selectedListId={selectedListId}
