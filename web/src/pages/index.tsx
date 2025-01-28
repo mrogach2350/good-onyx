@@ -61,7 +61,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
         return (
           <div className="flex space-x-3 items-center h-full">
             <button
-              onClick={() => router.push(`/vehicles/${node.data.id}`)}
+              onClick={() => window.open(`/vehicles/${node.data.id}`, '_blank', 'noopener,noreferrer')}
               className="button is-info is-small">
               View
             </button>
