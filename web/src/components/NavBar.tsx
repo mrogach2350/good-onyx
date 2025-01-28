@@ -1,4 +1,3 @@
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 
 export default function NavBar() {
@@ -36,20 +35,9 @@ export default function NavBar() {
           </div>
         </div> */}
 
-        <div className="navbar-end">
-          <div className="navbar-item">
-            <div className="buttons">
-              <SignedOut>
-                <SignInButton>
-                  <button className="button is-info">Sign In</button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </div>
-          </div>
-        </div>
+        {/* <div className="navbar-end">
+          <div className="navbar-item"></div>
+        </div> */}
       </div>
     </nav>
   );

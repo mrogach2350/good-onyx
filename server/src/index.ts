@@ -1,9 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { clerkMiddleware, requireAuth, getAuth } from "@clerk/express";
 import { createLogger, format, transports } from "winston";
-// import { createServer } from "http";
-// import { Server } from "socket.io";
 import IORedis from "ioredis";
 import { Worker } from "bullmq";
 import { getOfferForVehicle } from "./services/getOfferService";
@@ -31,12 +28,6 @@ import {
 } from "./handlers/vehicles";
 
 const app = express();
-// const httpServer = createServer(app);
-// const io = new Server(httpServer, {
-//   cors: {
-//     origin: "*",
-//   },
-// });
 
 const { combine, label, printf } = format;
 const myFormat = printf(({ level, message, label }) => {
@@ -53,7 +44,6 @@ export const logger = createLogger({
 });
 
 app.use(cors());
-app.use(clerkMiddleware());
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
@@ -68,8 +58,6 @@ const vehiclesRouter = express.Router();
 const listsRouter = express.Router();
 app.use("/vehicles", vehiclesRouter);
 app.use("/lists", listsRouter);
-vehiclesRouter.use(requireAuth());
-listsRouter.use(requireAuth());
 
 vehiclesRouter
   .route("/")
