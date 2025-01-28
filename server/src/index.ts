@@ -87,7 +87,7 @@ app.listen(4000, () => {
   logger.info("listening on port 4000");
 
   const REDIS_HOST = process.env.REDIS_HOST || "keydb";
-  const connection = new IORedis(6379, REDIS_HOST, {
+  const connection = new IORedis(6300, REDIS_HOST, {
     maxRetriesPerRequest: null,
   });
 
