@@ -39,7 +39,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
   const [selectedVehicle, setSelectedVehicle] = useState<any>({});
   const [gettingOfferId, setGettingOfferId] = useState<any>(null);
   const [selectedListId, setSelectedListId] = useState<number>(0);
-  const [showCostEstimates, setShowCostEstimates] = useState<boolean>(false);
+  const [showCostEstimates, setShowCostEstimates] = useState<boolean>(true);
 
   const onGetOffer = (node: any) => {
     const { vin, mileage, id } = node.data;
