@@ -5,13 +5,6 @@ import {
   QueryClientProvider,
   HydrationBoundary,
 } from "@tanstack/react-query";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -26,7 +19,6 @@ const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ClerkProvider>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={pageProps.dehydratedState}>
           <NavBar />
@@ -34,6 +26,5 @@ export default function App({ Component, pageProps }: AppProps) {
         </HydrationBoundary>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </ClerkProvider>
   );
 }
