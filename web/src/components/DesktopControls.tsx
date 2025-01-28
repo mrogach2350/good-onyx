@@ -109,7 +109,7 @@ export default function DesktopControls({
         />
         <div className="flex justify-end space-x-2 mb-2">
           <button
-            className="button is-info"
+            className="button is-primary"
             onClick={() => setShowCostEstimates(!showCostEstimates)}>
             {showCostEstimates ? "Show Current Bid" : "Show Estimated Cost"}
           </button>

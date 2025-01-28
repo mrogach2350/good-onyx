@@ -61,7 +61,13 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
         return (
           <div className="flex space-x-3 items-center h-full">
             <button
-              onClick={() => window.open(`/vehicles/${node.data.id}`, '_blank', 'noopener,noreferrer')}
+              onClick={() =>
+                window.open(
+                  `/vehicles/${node.data.id}`,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
               className="button is-info is-small">
               View
             </button>
@@ -141,6 +147,8 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           setSelectedNodes={setSelectedNodes}
           selectedListId={selectedListId}
           setSelectedListId={setSelectedListId}
+          showCostEstimates={showCostEstimates}
+          setShowCostEstimates={setShowCostEstimates}
         />
       ) : (
         <DesktopControls
