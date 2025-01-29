@@ -1,9 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createLogger, format, transports } from "winston";
-import IORedis from "ioredis";
-import { Worker } from "bullmq";
-import { getOfferForVehicle } from "./services/getOfferService";
+import { Queue } from "bullmq";
 import {
   getAuctionsHandler,
   getOfferHandler,
@@ -43,15 +41,20 @@ export const logger = createLogger({
   ],
 });
 
+const redisHost = process.env.REDIS_HOST || "mcqueen";
+const redisPort = process.env.REDIS_PORT || 6379;
+export const offerQueue = new Queue("offer-queue", {
+  connection: {
+    host: redisHost,
+    port: redisPort as number,
+  },
+});
+
 app.use(cors());
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
 });
-
-// io.on("connection", (socket) => {
-//   logger.info("socket connected");
-// });
 
 app.use(express.json());
 const vehiclesRouter = express.Router();
@@ -82,45 +85,8 @@ listsRouter
 app.post("/get-auctions", getAuctionsHandler);
 app.post("/get-offer", getOfferHandler);
 app.post("/get-bid", getBidHandler);
+app.post("/enqueue");
 
 app.listen(4000, () => {
   logger.info("listening on port 4000");
-
-  const REDIS_HOST = process.env.REDIS_HOST || "keydb";
-  const connection = new IORedis(6300, REDIS_HOST, {
-    maxRetriesPerRequest: null,
-  });
-
-  const worker = new Worker(
-    "get_offer",
-    async (job) => {
-      logger.info(`starting job ${job.name}`);
-      const { vin = "", mileage = 0, id = 0 } = job.data;
-      if (vin === "" || mileage === 0 || id === 0) return null;
-
-      try {
-        const offerData = await getOfferForVehicle({
-          vin,
-          mileage,
-          vehicleId: id,
-        });
-
-        return {
-          ...offerData,
-        };
-      } catch (error) {
-        if (error instanceof Error) {
-          return {
-            error: error.name,
-            message: error.message,
-          };
-        }
-      }
-    },
-    { connection }
-  );
-
-  worker.on("completed", async (job) => {
-    // io.emit("job-completed", job);
-  });
 });
