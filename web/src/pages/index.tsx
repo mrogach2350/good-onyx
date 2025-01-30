@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/router";
 import { getSelectorsByUserAgent } from "react-device-detect";
 import {
   useQuery,
@@ -29,7 +28,6 @@ const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
 
 export default function Home({ isMobile }: { isMobile: boolean }) {
   const gridRef = useRef<AgGridReact<any>>(null);
-  const router = useRouter();
   const queryClient = useQueryClient();
   const getOfferMutation = useGetOfferMutation();
   const deleteVehiclesMutation = useDeleteVehiclesMutation();
