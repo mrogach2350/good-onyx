@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import type { UseMutateFunction } from "@tanstack/react-query";
 import { Modal } from "react-bulma-components";
 import { useUpdateNoteMutation } from "@/mutations";
+
 export default function NoteModal({
   onClose,
   onSuccess,
