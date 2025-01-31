@@ -53,7 +53,8 @@ const currentBidAmountColDef: ColDef = {
 
 export const getColDefs = (
   actionsCellRenderer: any,
-  showEstimates?: boolean
+  cellEditor: any,
+  showEstimates?: boolean,
 ): ColDef[] => {
   return [
     { field: "title", filter: true },
@@ -70,6 +71,12 @@ export const getColDefs = (
         "No Offers",
     },
     showEstimates ? costEstimatorColDef : currentBidAmountColDef,
+    {
+      field: "note",
+      headerName: "Latest Note",
+      editable: true,
+      cellEditor: cellEditor,
+    },
     {
       field: "secondsLeftToBid",
       sortable: true,

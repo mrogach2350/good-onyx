@@ -12,8 +12,8 @@ import {
   themeQuartz,
   colorSchemeDarkBlue,
   SelectionChangedEvent,
+  type CellEditingStoppedEvent,
 } from "ag-grid-community";
-import NoteModal from "@/components/NoteModal";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
 import { getColDefs } from "@/utils/helpers";
@@ -22,6 +22,7 @@ import {
   useDeleteVehiclesMutation,
   useGetOfferMutation,
   useAuctionScraperMutation,
+  useUpdateNoteMutation,
 } from "@/mutations";
 
 const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
@@ -32,9 +33,9 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
   const getOfferMutation = useGetOfferMutation();
   const deleteVehiclesMutation = useDeleteVehiclesMutation();
   const auctionScraperMutation = useAuctionScraperMutation();
+  const updateNoteMutation = useUpdateNoteMutation();
+
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
-  const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<any>({});
   const [gettingOfferId, setGettingOfferId] = useState<any>(null);
   const [selectedListId, setSelectedListId] = useState<number>(0);
   const [showCostEstimates, setShowCostEstimates] = useState<boolean>(true);
@@ -55,38 +56,43 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
 
   const colDefs: ColDef[] = useMemo(
     () =>
-      getColDefs(({ node }: { node: any }) => {
-        return (
-          <div className="flex space-x-3 items-center h-full">
-            <button
-              onClick={() =>
-                window.open(
-                  `/vehicles/${node.data.id}`,
-                  "_blank",
-                  "noopener,noreferrer"
-                )
-              }
-              className="button is-info is-small">
-              View
-            </button>
-            <button
-              onClick={() => {
-                setSelectedVehicle({ id: node.data.id, note: node.data.note });
-                setShowNoteModal(true);
-              }}
-              className="button is-info is-small">
-              Note
-            </button>
-            <button
-              onClick={() => onGetOffer(node)}
-              className="button is-info is-small">
-              {getOfferMutation.isPending && gettingOfferId === node.data.id
-                ? "Loading..."
-                : "Get Offer"}
-            </button>
-          </div>
-        );
-      }, showCostEstimates),
+      getColDefs(
+        ({ node }: { node: any }) => {
+          return (
+            <div className="flex space-x-3 items-center h-full">
+              <button
+                onClick={() =>
+                  window.open(
+                    `/vehicles/${node.data.id}`,
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+                className="button is-info is-small">
+                View
+              </button>
+              <button
+                onClick={() => onGetOffer(node)}
+                className="button is-info is-small">
+                {getOfferMutation.isPending && gettingOfferId === node.data.id
+                  ? "Loading..."
+                  : "Get Offer"}
+              </button>
+            </div>
+          );
+        },
+        ({ value, onValueChange }: any) => (
+          <input
+            className="pl-2"
+            type="text"
+            value={value || ""}
+            onChange={({ target: { value } }) =>
+              onValueChange(value === "" ? null : value)
+            }
+          />
+        ),
+        showCostEstimates
+      ),
     [showCostEstimates]
   );
 
@@ -117,9 +123,20 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     setSelectedNodes(selectedNodes);
   }, []);
 
-  const handleClose = () => {
-    setSelectedVehicle({});
-    setShowNoteModal(false);
+  const onCellEditingStopped = ({
+    data,
+    newValue,
+    valueChanged,
+  }: CellEditingStoppedEvent) => {
+    if (valueChanged) {
+      updateNoteMutation.mutate(
+        { id: data.id, note: newValue },
+        {
+          onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ["vehicles"] }),
+        }
+      );
+    }
   };
 
   const showLoadingBar =
@@ -180,18 +197,9 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
             type: "fitCellContents",
           }}
           noRowsOverlayComponent={() => <div>No Vehicles</div>}
+          onCellEditingStopped={onCellEditingStopped}
         />
       </div>
-      {showNoteModal && (
-        <NoteModal
-          onClose={handleClose}
-          selectedVehicle={selectedVehicle}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-            setShowNoteModal(false);
-          }}
-        />
-      )}
     </div>
   );
 }
