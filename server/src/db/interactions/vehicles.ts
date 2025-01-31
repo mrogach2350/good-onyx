@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { db } from "../index";
 import {
   vehicles,
@@ -15,14 +15,15 @@ export const covertOfferDatesToString = (offers: SelectOffer[]) =>
   }));
 
 export const getAllVehicles = async () => {
-  const vehicles = await db.query.vehicles.findMany({
+  const result = await db.query.vehicles.findMany({
     with: {
       offers: true,
     },
     where: (vehicles, { isNull }) => isNull(vehicles.deletedAt),
+    orderBy: [asc(vehicles.id)],
   });
 
-  return vehicles.map((vehicle) => ({
+  return result.map((vehicle) => ({
     ...vehicle,
     offers: covertOfferDatesToString(vehicle?.offers),
   }));
