@@ -1,6 +1,18 @@
 import { eq } from "drizzle-orm";
 import { db } from "../index";
-import { vehicles, type InsertVehicle, type SelectVehicle } from "../schema";
+import {
+  vehicles,
+  type InsertVehicle,
+  type SelectVehicle,
+  type SelectOffer,
+} from "../schema";
+
+export const covertOfferDatesToString = (offers: SelectOffer[]) =>
+  offers.map((o) => ({
+    ...o,
+    retrivedAt: o.retrivedAt?.toDateString(),
+    validUntil: o.validUntil?.toDateString(),
+  }));
 
 export const getAllVehicles = async () => {
   const vehicles = await db.query.vehicles.findMany({
@@ -12,11 +24,7 @@ export const getAllVehicles = async () => {
 
   return vehicles.map((vehicle) => ({
     ...vehicle,
-    offers: vehicle?.offers.map((o) => ({
-      ...o,
-      retrivedAt: o.retrivedAt?.toDateString(),
-      validUntil: o.validUntil?.toDateString(),
-    })),
+    offers: covertOfferDatesToString(vehicle?.offers),
   }));
 };
 
@@ -30,11 +38,7 @@ export const getVehicleById = async (id: number) => {
 
   return {
     ...vehicle,
-    offers: vehicle?.offers.map((o) => ({
-      ...o,
-      retrivedAt: o.retrivedAt?.toDateString(),
-      validUntil: o.validUntil?.toDateString(),
-    })),
+    offers: covertOfferDatesToString(vehicle?.offers as SelectOffer[]),
   };
 };
 
