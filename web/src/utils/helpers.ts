@@ -45,11 +45,37 @@ const costEstimatorColDef: ColDef = {
     }
     return "";
   },
+  comparator: (valueA, valueB, nodeA, nodeB, isDescending) => {
+    if (valueA) {
+      if (valueB) {
+        const bidNumberStringA = valueA.split(" ")[1];
+        const bidNumberA = parseInt(bidNumberStringA.replace(/,/g, ""));
+        const bidNumberStringB = valueB.split(" ")[1];
+        const bidNumberB = parseInt(bidNumberStringB.replace(/,/g, ""));
+        return isDescending ? bidNumberA - bidNumberB : bidNumberB - bidNumberA;
+      }
+      return 1;
+    }
+    return 0;
+  },
 };
 
 const currentBidAmountColDef: ColDef = {
   field: "currentBidAmount",
   sortable: true,
+  comparator: (valueA, valueB, nodeA, nodeB, isDescending) => {
+    if (valueA) {
+      if (valueB) {
+        const bidNumberStringA = valueA.split(" ")[1];
+        const bidNumberA = parseInt(bidNumberStringA.replace(/,/g, ""));
+        const bidNumberStringB = valueB.split(" ")[1];
+        const bidNumberB = parseInt(bidNumberStringB.replace(/,/g, ""));
+        return isDescending ? bidNumberA - bidNumberB : bidNumberB - bidNumberA;
+      }
+      return 1;
+    }
+    return 0;
+  },
   valueFormatter: (params) => {
     if (params.value) {
       const bidNumberString = params.value.split(" ")[1];
@@ -74,6 +100,15 @@ export const getColDefs = (
     {
       field: "offers",
       headerName: "Latest Offer",
+      comparator: (valueA, valueB, nodeA, nodeB, isDescending) => {
+        if (valueA.length > 0) {
+          if (valueB.length > 0) {
+            return valueA[0]?.amount - valueB[0]?.amount;
+          }
+          return 1;
+        }
+        return 0;
+      },
       valueFormatter: (params) =>
         (params?.value && currencyFormatter(params?.value[0]?.amount)) ||
         "No Offers",
