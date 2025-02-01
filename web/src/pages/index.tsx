@@ -16,6 +16,7 @@ import {
 } from "ag-grid-community";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
+import { isProfitable } from "@/utils/costEstimator";
 import { getColDefs } from "@/utils/helpers";
 import { getAllVehiclesQuery } from "@/queries";
 import {
@@ -56,43 +57,30 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
 
   const colDefs: ColDef[] = useMemo(
     () =>
-      getColDefs(
-        ({ node }: { node: any }) => {
-          return (
-            <div className="flex space-x-3 items-center h-full">
-              <button
-                onClick={() =>
-                  window.open(
-                    `/vehicles/${node.data.id}`,
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-                className="button is-info is-small">
-                View
-              </button>
-              <button
-                onClick={() => onGetOffer(node)}
-                className="button is-info is-small">
-                {getOfferMutation.isPending && gettingOfferId === node.data.id
-                  ? "Loading..."
-                  : "Get Offer"}
-              </button>
-            </div>
-          );
-        },
-        ({ value, onValueChange }: any) => (
-          <input
-            className="pl-2"
-            type="text"
-            value={value || ""}
-            onChange={({ target: { value } }) =>
-              onValueChange(value === "" ? null : value)
-            }
-          />
-        ),
-        showCostEstimates
-      ),
+      getColDefs(({ node }: { node: any }) => {
+        return (
+          <div className="flex space-x-3 items-center h-full">
+            <button
+              onClick={() =>
+                window.open(
+                  `/vehicles/${node.data.id}`,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+              className="button is-info is-small">
+              View
+            </button>
+            <button
+              onClick={() => onGetOffer(node)}
+              className="button is-info is-small">
+              {getOfferMutation.isPending && gettingOfferId === node.data.id
+                ? "Loading..."
+                : "Get Offer"}
+            </button>
+          </div>
+        );
+      }, showCostEstimates),
     [showCostEstimates]
   );
 
@@ -184,6 +172,9 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           rowSelection={{
             mode: "multiRow",
             selectAll: "currentPage",
+          }}
+          rowClassRules={{
+            "bg-red-800": (params) => !isProfitable(params.data),
           }}
           theme={myTheme}
           columnDefs={colDefs}

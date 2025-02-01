@@ -1,4 +1,5 @@
-import { prod, format } from "mathjs";
+import { prod } from "mathjs";
+import { sortOffersByDate } from "@/utils/helpers";
 
 const BUYERS_FEE: number = 1.15; // 15%
 const SALES_TAX: number = 1.0775; // 7.75%
@@ -9,10 +10,7 @@ const ADMIN_FEE: number = 125; // $125
 const NON_PERCENT_FEES =
   SALES_TAX + DOC_FEE + SMOG_TEST_FEE + SMOG_CERT_FEE + ADMIN_FEE;
 
-export default function costEstimator(
-  baseCost: number,
-  isWholesaler: boolean = false
-) {
+export function costEstimator(baseCost: number, isWholesaler: boolean = false) {
   const withBuyersFee = prod(baseCost, BUYERS_FEE);
   const withNonPercentFees = withBuyersFee + NON_PERCENT_FEES;
 
@@ -23,3 +21,21 @@ export default function costEstimator(
   const estimateTotal = prod(withNonPercentFees, SALES_TAX);
   return Math.round(estimateTotal * 100) / 100;
 }
+
+export const isProfitable = ({
+  offers,
+  currentBidAmount,
+}: {
+  offers: any[];
+  currentBidAmount: any;
+}): boolean => {
+  if (offers.length === 0 || !currentBidAmount) {
+    return true;
+  }
+
+  const bidNumberString = currentBidAmount.split(" ")[1];
+  const bidNumber = parseInt(bidNumberString.replace(/,/g, ""));
+  const estimatedCost = costEstimator(bidNumber);
+  const latestOffer = sortOffersByDate(offers)[0];
+  return latestOffer?.amount > estimatedCost;
+};

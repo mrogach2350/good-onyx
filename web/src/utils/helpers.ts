@@ -1,6 +1,7 @@
-import { ColDef } from "ag-grid-community";
-import costEstimator from "./costEstimator";
+import { ColDef, type ICellEditorParams } from "ag-grid-community";
+import { costEstimator } from "./costEstimator";
 import currencyFormatter from "./currencyFormatter";
+import GridTextEditor from "../components/GridTextEditor";
 
 export function isEmpty(obj: {}) {
   for (const prop in obj) {
@@ -23,6 +24,14 @@ export function secondsToHms(d: number) {
   // var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
   return !!mDisplay ? `${hDisplay}:${mDisplay}` : hDisplay;
 }
+
+export const sortOffersByDate = (offers: any[]): any[] => {
+  return [...offers].sort((a, b) => {
+    const dateA = new Date(a.retrievedAt);
+    const dateB = new Date(b.retrievedAt);
+    return dateB.getTime() - dateA.getTime();
+  });
+};
 
 const costEstimatorColDef: ColDef = {
   headerName: "Estimated Total Cost",
@@ -53,8 +62,7 @@ const currentBidAmountColDef: ColDef = {
 
 export const getColDefs = (
   actionsCellRenderer: any,
-  cellEditor: any,
-  showEstimates?: boolean,
+  showEstimates?: boolean
 ): ColDef[] => {
   return [
     { field: "title", filter: true },
@@ -75,7 +83,7 @@ export const getColDefs = (
       field: "note",
       headerName: "Latest Note",
       editable: true,
-      cellEditor: cellEditor,
+      cellEditor: GridTextEditor,
     },
     {
       field: "secondsLeftToBid",
