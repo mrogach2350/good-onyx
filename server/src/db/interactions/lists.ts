@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "../index";
-import { lists, vehiclesToLists, vehicles } from "../schema";
+import { lists, vehiclesToLists, vehicles, offers } from "../schema";
 
 const getAllLists = async () => {
   const lists = await db.query.lists.findMany({});
@@ -99,14 +99,21 @@ const removeVehiclesFromList = async (listId: number, vehicleIds: number[]) => {
 };
 
 const getVehiclesByListId = async (listId: number) => {
-  const results = await db
-    .select()
-    .from(vehiclesToLists)
-    .leftJoin(vehicles, eq(vehiclesToLists.vehicleId, vehicles.id))
-    .leftJoin(lists, eq(vehiclesToLists.listId, lists.id))
-    .where(eq(lists.id, listId));
-
-  return results.map((result) => result.vehicles);
+  const result = await db.query.lists.findFirst({
+    with: {
+      vehiclesToLists: {
+        with: {
+          vehicle: {
+            with: {
+              offers: true,
+            },
+          },
+        },
+      },
+    },
+    where: eq(lists.id, listId),
+  });
+  return result?.vehiclesToLists.map(x => x.vehicle)
 };
 
 export {

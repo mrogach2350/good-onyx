@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/router";
 import { getSelectorsByUserAgent } from "react-device-detect";
 import {
   useQuery,
@@ -13,30 +12,31 @@ import {
   themeQuartz,
   colorSchemeDarkBlue,
   SelectionChangedEvent,
+  type CellEditingStoppedEvent,
 } from "ag-grid-community";
-import NoteModal from "@/components/NoteModal";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
+import { isProfitable } from "@/utils/costEstimator";
 import { getColDefs } from "@/utils/helpers";
 import { getAllVehiclesQuery } from "@/queries";
 import {
   useDeleteVehiclesMutation,
   useGetOfferMutation,
   useAuctionScraperMutation,
+  useUpdateNoteMutation,
 } from "@/mutations";
 
 const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
 
 export default function Home({ isMobile }: { isMobile: boolean }) {
   const gridRef = useRef<AgGridReact<any>>(null);
-  const router = useRouter();
   const queryClient = useQueryClient();
   const getOfferMutation = useGetOfferMutation();
   const deleteVehiclesMutation = useDeleteVehiclesMutation();
   const auctionScraperMutation = useAuctionScraperMutation();
+  const updateNoteMutation = useUpdateNoteMutation();
+
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
-  const [showNoteModal, setShowNoteModal] = useState<boolean>(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<any>({});
   const [gettingOfferId, setGettingOfferId] = useState<any>(null);
   const [selectedListId, setSelectedListId] = useState<number>(0);
   const [showCostEstimates, setShowCostEstimates] = useState<boolean>(true);
@@ -70,14 +70,6 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
               }
               className="button is-info is-small">
               View
-            </button>
-            <button
-              onClick={() => {
-                setSelectedVehicle({ id: node.data.id, note: node.data.note });
-                setShowNoteModal(true);
-              }}
-              className="button is-info is-small">
-              Note
             </button>
             <button
               onClick={() => onGetOffer(node)}
@@ -119,9 +111,20 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     setSelectedNodes(selectedNodes);
   }, []);
 
-  const handleClose = () => {
-    setSelectedVehicle({});
-    setShowNoteModal(false);
+  const onCellEditingStopped = ({
+    data,
+    newValue,
+    valueChanged,
+  }: CellEditingStoppedEvent) => {
+    if (valueChanged) {
+      updateNoteMutation.mutate(
+        { id: data.id, note: newValue },
+        {
+          onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ["vehicles"] }),
+        }
+      );
+    }
   };
 
   const showLoadingBar =
@@ -170,6 +173,9 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
             mode: "multiRow",
             selectAll: "currentPage",
           }}
+          rowClassRules={{
+            "bg-red-800": (params) => !isProfitable(params.data),
+          }}
           theme={myTheme}
           columnDefs={colDefs}
           rowData={
@@ -182,18 +188,9 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
             type: "fitCellContents",
           }}
           noRowsOverlayComponent={() => <div>No Vehicles</div>}
+          onCellEditingStopped={onCellEditingStopped}
         />
       </div>
-      {showNoteModal && (
-        <NoteModal
-          onClose={handleClose}
-          selectedVehicle={selectedVehicle}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-            setShowNoteModal(false);
-          }}
-        />
-      )}
     </div>
   );
 }

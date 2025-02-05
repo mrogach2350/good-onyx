@@ -57,6 +57,12 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use((req, res, next) => {
+  req.setTimeout(90000);
+  res.setTimeout(90000);
+  next();
+});
+
 const vehiclesRouter = express.Router();
 const listsRouter = express.Router();
 app.use("/vehicles", vehiclesRouter);

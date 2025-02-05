@@ -3,15 +3,19 @@ import { useRouter } from "next/router";
 import {
   useQuery,
   useQueryClient,
-  useMutation,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
-import { AgGridReact } from "ag-grid-react"; // React Data Grid Component
+import { AgGridReact } from "ag-grid-react";
 import { ColDef, themeQuartz, colorSchemeDarkBlue } from "ag-grid-community";
 import { secondsToHms } from "@/utils/helpers";
 import { getVehicleByIdQuery } from "@/queries";
-import { useGetAuctionBidsMutation, useGetOfferMutation } from "@/mutations";
+import {
+  useGetAuctionBidsMutation,
+  useGetOfferMutation,
+  useUpdateNoteMutation,
+  useDeleteVehiclesMutation,
+} from "@/mutations";
 
 const myTheme = themeQuartz.withPart(colorSchemeDarkBlue);
 export default function VehicleShow() {
@@ -19,6 +23,8 @@ export default function VehicleShow() {
   const queryClient = useQueryClient();
   const getAuctionBidsMutation = useGetAuctionBidsMutation();
   const getOfferMutation = useGetOfferMutation();
+  const updateNoteMutation = useUpdateNoteMutation();
+  const deleteVehiclesMutations = useDeleteVehiclesMutation();
 
   const [scrapingError, setScrapingError] = useState<string>("");
   const [editNote, setEditNote] = useState<boolean>(false);
@@ -40,42 +46,6 @@ export default function VehicleShow() {
     { field: "retrivedAt" },
   ];
 
-  const deleteListingMutation = useMutation({
-    mutationFn: async () => {
-      await fetch("/api/vehicles/delete-vehicles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          vehicleIds: [data?.vehicle.id],
-        }),
-      });
-    },
-    onSuccess: () => {
-      router.push("/");
-    },
-  });
-
-  const saveNoteMutation = useMutation({
-    mutationFn: async () => {
-      await fetch("/api/vehicles/update-vehicles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: data?.vehicle.id,
-          note: vehicleNoteValue,
-        }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vehicle"] });
-      setEditNote(false);
-    },
-  });
-
   const onGetOffer = () =>
     getOfferMutation.mutate(data?.vehicle, {
       onSuccess: async (data) => {
@@ -89,16 +59,40 @@ export default function VehicleShow() {
       },
     });
 
+  const handleUpdateNote = () => {
+    updateNoteMutation.mutate(
+      { id: data?.vehicle.id, note: vehicleNoteValue },
+      {
+        onSuccess: () => {
+          console.log("called");
+          queryClient.invalidateQueries({ queryKey: ["vehicle"] });
+          setEditNote(false);
+        },
+      }
+    );
+  };
+
   const handleDiscard = () => {
     setEditNote(false);
     setVehicleNoteValue(data?.vehicle.note);
   };
 
+  const handleDeleteVehicle = () => {
+    deleteVehiclesMutations.mutate(
+      { vehicleIds: [data?.vehicle.id] },
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+      }
+    );
+  };
+
   const showLoadingBar =
     isLoading ||
     getOfferMutation.isPending ||
-    deleteListingMutation.isPending ||
-    saveNoteMutation.isPending ||
+    deleteVehiclesMutations.isPending ||
+    updateNoteMutation.isPending ||
     getAuctionBidsMutation.isPending;
 
   return (
@@ -122,9 +116,7 @@ export default function VehicleShow() {
           rel="noopener noreferrer">
           Link to Vehicle Listing Page
         </a>
-        <a
-          className="button is-danger ml-3"
-          onClick={() => deleteListingMutation.mutate()}>
+        <a className="button is-danger ml-3" onClick={handleDeleteVehicle}>
           Delete Listing
         </a>
         <h1 className="title">{data?.vehicle?.title}</h1>
@@ -157,7 +149,7 @@ export default function VehicleShow() {
               <button
                 onClick={() =>
                   getAuctionBidsMutation.mutate(
-                    { selectedNodes: [data] },
+                    { selectedNodes: [{ data: data?.vehicle }] },
                     {
                       onSuccess: () => {
                         queryClient.invalidateQueries({
@@ -194,7 +186,7 @@ export default function VehicleShow() {
                 <div className="flex space-x-3 mt-3">
                   <button
                     className="button is-primary"
-                    onClick={() => saveNoteMutation.mutate()}>
+                    onClick={handleUpdateNote}>
                     Save
                   </button>
                   <button className="button is-danger" onClick={handleDiscard}>

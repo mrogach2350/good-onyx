@@ -1,22 +1,31 @@
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { db } from "../index";
-import { vehicles, type InsertVehicle, type SelectVehicle } from "../schema";
+import {
+  vehicles,
+  type InsertVehicle,
+  type SelectVehicle,
+  type SelectOffer,
+} from "../schema";
+
+export const covertOfferDatesToString = (offers: SelectOffer[]) =>
+  offers.map((o) => ({
+    ...o,
+    retrivedAt: o.retrivedAt?.toDateString(),
+    validUntil: o.validUntil?.toDateString(),
+  }));
 
 export const getAllVehicles = async () => {
-  const vehicles = await db.query.vehicles.findMany({
+  const result = await db.query.vehicles.findMany({
     with: {
       offers: true,
     },
     where: (vehicles, { isNull }) => isNull(vehicles.deletedAt),
+    orderBy: [asc(vehicles.id)],
   });
 
-  return vehicles.map((vehicle) => ({
+  return result.map((vehicle) => ({
     ...vehicle,
-    offers: vehicle?.offers.map((o) => ({
-      ...o,
-      retrivedAt: o.retrivedAt?.toDateString(),
-      validUntil: o.validUntil?.toDateString(),
-    })),
+    offers: covertOfferDatesToString(vehicle?.offers),
   }));
 };
 
@@ -30,11 +39,7 @@ export const getVehicleById = async (id: number) => {
 
   return {
     ...vehicle,
-    offers: vehicle?.offers.map((o) => ({
-      ...o,
-      retrivedAt: o.retrivedAt?.toDateString(),
-      validUntil: o.validUntil?.toDateString(),
-    })),
+    offers: covertOfferDatesToString(vehicle?.offers as SelectOffer[]),
   };
 };
 
