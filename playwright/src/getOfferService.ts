@@ -1,38 +1,29 @@
-import { firefox } from "playwright";
+import { firefox, BrowserServer } from "playwright";
 import { logger } from "./index";
 
-export const getOfferForVehicle = async ({
-  vin,
-  mileage,
-  vehicleId,
-}: {
-  vin: string;
-  mileage: number;
-  vehicleId: number;
-}) => {
+export const getOfferForVehicle = async (
+  {
+    vin,
+    mileage,
+    vehicleId,
+  }: {
+    vin: string;
+    mileage: number;
+    vehicleId: number;
+  },
+  browserEndpoint: string
+) => {
   const RECEIVER_EMAIL = "quotes.estimator@proton.me";
-  const browser = await firefox.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-gpu",
-      "--disable-web-security",
-      "--window-size=1920,1080",
-      "--disable-features=IsolateOrigins,site-per-process",
-      "--disable-setuid-sandbox",
-      "--disable-web-security",
-    ],
+  const browser = await firefox.connect(browserEndpoint);
+  const context = await browser.newContext({
+    viewport: { width: 1920, height: 1080 },
   });
-
+  context.setExtraHTTPHeaders({
+    "User-Agent":
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  });
+  
   try {
-    const context = await browser.newContext({
-      viewport: { width: 1920, height: 1080 },
-    });
-    context.setExtraHTTPHeaders({
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    });
-
     const page = await context.newPage();
 
     // Navigate to the page and wait for it to load
@@ -108,7 +99,9 @@ export const getOfferForVehicle = async ({
 
     // Select transmission type
     await page.waitForSelector("#select-ico-features-transmission");
-    await page.selectOption("#select-ico-features-transmission", { index: 1 });
+    await page.selectOption("#select-ico-features-transmission", {
+      index: 1,
+    });
 
     logger.info("Attempting to click Mileage and Condition button...");
 
@@ -208,7 +201,10 @@ export const getOfferForVehicle = async ({
     logger.info("Waiting for offer result...");
     const result = await Promise.race([
       page
-        .waitForSelector("#icoIneligible", { state: "visible", timeout: 30000 })
+        .waitForSelector("#icoIneligible", {
+          state: "visible",
+          timeout: 30000,
+        })
         .then(() => "ineligible"),
       page
         .waitForSelector('[data-qa="offer-amount"]', {
@@ -264,6 +260,6 @@ export const getOfferForVehicle = async ({
       logger.error(e.message, e);
     }
   } finally {
-    await browser.close();
+    await context.close();
   }
 };

@@ -17,6 +17,7 @@ import {
   addVehiclesToListHandler,
   removeVehiclesFromListHandler,
 } from "./handlers/lists";
+import { enqueueJob } from "./handlers/queue";
 import {
   getVehiclesHandler,
   getVehicleByIdHandler,
@@ -91,7 +92,7 @@ listsRouter
 app.post("/get-auctions", getAuctionsHandler);
 app.post("/get-offer", getOfferHandler);
 app.post("/get-bid", getBidHandler);
-app.post("/enqueue");
+app.post("/enqueue", enqueueJob);
 
 app.listen(4000, () => {
   logger.info("listening on port 4000");

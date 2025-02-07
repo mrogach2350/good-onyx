@@ -1,3 +1,4 @@
+import "dotenv/config";
 import http from "node:http";
 import IORedis from "ioredis";
 import { Worker } from "bullmq";
@@ -13,7 +14,7 @@ const myFormat = printf(({ level, message, label }) => {
 });
 
 export const logger = createLogger({
-  format: combine(label({ label: "good-onyx-server" }), myFormat),
+  format: combine(label({ label: "good-onyx-playwright" }), myFormat),
   transports: [
     new transports.Console({
       handleExceptions: true,
@@ -25,12 +26,20 @@ export let browserServer: BrowserServer;
 
 server.listen(6666, async () => {
   const REDIS_HOST = process.env.REDIS_HOST || "keydb";
-  const connection = new IORedis(6300, REDIS_HOST, {
+  const REDIS_PORT = process.env.REDIS_PORT
+    ? parseInt(process.env.REDIS_PORT)
+    : 6379;
+
+  const connection = new IORedis(REDIS_PORT, REDIS_HOST, {
     maxRetriesPerRequest: null,
   });
 
   browserServer = await firefox.launchServer({
     headless: true,
+    logger: {
+      isEnabled: () => true,
+      log: (name, severity, message) => logger[severity](`${name} ${message}`),
+    },
     args: [
       "--no-sandbox",
       "--disable-gpu",
@@ -42,6 +51,7 @@ server.listen(6666, async () => {
     ],
   });
 
+  const browserEndpoint = browserServer.wsEndpoint();
   const worker = new Worker(
     "offer-queue",
     async (job) => {
@@ -50,11 +60,14 @@ server.listen(6666, async () => {
       if (vin === "" || mileage === 0 || id === 0) return null;
 
       try {
-        const offerData = await getOfferForVehicle({
-          vin,
-          mileage,
-          vehicleId: id,
-        });
+        const offerData = await getOfferForVehicle(
+          {
+            vin,
+            mileage,
+            vehicleId: id,
+          },
+          browserEndpoint
+        );
 
         return {
           ...offerData,

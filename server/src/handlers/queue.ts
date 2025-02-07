@@ -13,7 +13,7 @@ const enqueueJob = async (req: Request, res: Response) => {
 
   switch (queueName) {
     case "offer-queue":
-      const jobId = offerQueue.add(`get-offer`, { ...args });
+      const jobId = offerQueue.add(`offer-queue`, { ...args });
       res.json({
         error: false,
         jobId,
