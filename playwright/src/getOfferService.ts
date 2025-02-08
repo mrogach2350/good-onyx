@@ -1,6 +1,17 @@
 import { firefox, BrowserServer } from "playwright";
 import { logger } from "./index";
 
+type GetOfferVehicleResult = {
+  offerData?: {
+    amount: number;
+    code: string;
+    validUntil: Date;
+    vehicleId: number;
+  };
+  error?: boolean;
+  message?: string;
+};
+
 export const getOfferForVehicle = async (
   {
     vin,
@@ -12,7 +23,7 @@ export const getOfferForVehicle = async (
     vehicleId: number;
   },
   browserEndpoint: string
-) => {
+): Promise<GetOfferVehicleResult> => {
   const RECEIVER_EMAIL = "quotes.estimator@proton.me";
   const browser = await firefox.connect(browserEndpoint);
   const context = await browser.newContext({
@@ -22,7 +33,7 @@ export const getOfferForVehicle = async (
     "User-Agent":
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   });
-  
+
   try {
     const page = await context.newPage();
 
@@ -250,14 +261,25 @@ export const getOfferForVehicle = async (
     logger.info(`Valid until: ${validUntilDate.toLocaleDateString()}`);
 
     return {
-      amount: cleanedAmount,
-      code: offerCode,
-      validUntil: validUntilDate,
-      vehicleId,
+      offerData: {
+        amount: cleanedAmount,
+        code: offerCode,
+        validUntil: validUntilDate,
+        vehicleId,
+      },
     };
   } catch (e) {
     if (e instanceof Error) {
       logger.error(e.message, e);
+      return {
+        error: true,
+        message: `error retrieving offer. Error:${e.message}`,
+      };
+    } else {
+      return {
+        error: true,
+        message: `error retrieving offer.`,
+      };
     }
   } finally {
     await context.close();

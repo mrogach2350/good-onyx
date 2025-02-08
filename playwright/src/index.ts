@@ -24,9 +24,9 @@ export const logger = createLogger({
 
 export let browserServer: BrowserServer;
 
-const PORT = process.env.PORT || 6666
+const PORT = process.env.PORT || 6666;
 server.listen(PORT, async () => {
-  logger.info(`playwright listening on port:${PORT}`)
+  logger.info(`playwright listening on port:${PORT}`);
   const REDIS_HOST = process.env.REDIS_HOST || "keydb";
   const REDIS_PORT = process.env.REDIS_PORT
     ? parseInt(process.env.REDIS_PORT)
@@ -65,7 +65,7 @@ server.listen(PORT, async () => {
       if (vin === "" || mileage === 0 || id === 0) return null;
 
       try {
-        const offerData = await getOfferForVehicle(
+        const result = await getOfferForVehicle(
           {
             vin,
             mileage,
@@ -74,9 +74,9 @@ server.listen(PORT, async () => {
           browserEndpoint
         );
 
-        return {
-          ...offerData,
-        };
+        if (!result?.error) {
+          offerResultQueue.add(id, { ...result.offerData });
+        }
       } catch (error) {
         if (error instanceof Error) {
           return {
@@ -88,13 +88,6 @@ server.listen(PORT, async () => {
     },
     { connection }
   );
-
-  worker.on("completed", async (job) => {
-    const {id, data} = job;
-    if (id) {
-      offerResultQueue.add(id, data)
-    }
-  });
 });
 
 server.on("close", () => {
