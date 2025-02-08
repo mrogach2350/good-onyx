@@ -3,39 +3,26 @@ services:
     build: ./web
     ports:
       - "3300:3000"
-    environment:
-      - BASE_SERVER_URL=http://server:4000
-      - NEXT_PUBLIC_BASE_SERVER_URL=http://server:4000
-      - DATABASE_URL=postgres://postgres:mypassword@db:5432/postgres
-      - MIGRATE=true
     networks:
       - good_onyx_internal
       - good_onyx_public
     restart: unless-stopped
   server:
     build: ./server
-    environment:
-      - DATABASE_URL=postgres://postgres:mypassword@db:5432/postgres
-      - MIGRATE=true
     ports:
       - "4000:4000"
     mem_limit: 2G
     restart: unless-stopped
     networks:
       - good_onyx_internal
-  db:
-    image: postgres:17.2-bullseye
+  playwright:
+    build: ./playwright
+    mem_limit: 2G
+    restart: unless-stopped
+    ports:
+      - "6666:6666"
     networks:
       - good_onyx_internal
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: postgres
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
   keydb:
     image: eqalpha/keydb
     networks:
@@ -52,7 +39,6 @@ networks:
     external: true
 
 volumes:
-  postgres_data:
   keydb_data:
 
 

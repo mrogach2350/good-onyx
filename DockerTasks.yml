@@ -6,30 +6,25 @@ tasks:
       - docker compose build
   deploy-dbs:
     cmds:
-      - docker compose up -d db keydb
+      - docker compose up -d keydb
   deploy-web:
     cmds:
       - docker compose up web -d --build
   deploy-server:
     cmds:
       - docker compose up server -d --build
+  deploy-playwright:
+    cmds:
+      - docker compose up playwright -d --build
   create-postgres-dev:
     cmds:
       - docker run --name drizzle-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres
   create-keydb-dev:
     cmds:
       - docker run --name keydb -p 6379:6379 -d eqalpha/keydb
-  run-dbs-dev:
-    cmds:
-      - task: run-postgres-dev
-      - task: run-keydb-dev
   stop-dev-dbs:
     cmds:
-      - docker stop drizzle-postgres
       - docker stop keydb
-  run-postgres-dev:
-    cmds:
-      - docker start drizzle-postgres
   run-keydb-dev:
     cmds:
       - docker start keydb
