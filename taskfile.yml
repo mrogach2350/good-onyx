@@ -8,13 +8,16 @@ includes:
   server:
     taskfile: ./server/Taskfile.yml
     dir: ./server
+  playwright:
+    taskfile: ./playwright/Taskfile.yml
+    dir: ./playwright
 tasks:
   dev:
-    deps: [web:dev, server:dev]
+    deps: [web:dev, server:dev, playwright:dev]
   build:
-    deps: [web:build, server:build]
+    deps: [web:build, server:build, playwright:build]
   start:
-    deps: [web:start, server:start]
+    deps: [web:start, server:start, playwright:start]
   migrate:
     dir: server
     cmds:
