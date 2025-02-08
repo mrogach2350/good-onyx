@@ -1,7 +1,7 @@
 import "dotenv/config";
 import http from "node:http";
 import IORedis from "ioredis";
-import { Worker } from "bullmq";
+import { Queue, Worker } from "bullmq";
 import { createLogger, format, transports } from "winston";
 import { getOfferForVehicle } from "./getOfferService";
 import { firefox, BrowserServer } from "playwright-core";
@@ -24,7 +24,9 @@ export const logger = createLogger({
 
 export let browserServer: BrowserServer;
 
-server.listen(6666, async () => {
+const PORT = process.env.PORT || 6666
+server.listen(PORT, async () => {
+  logger.info(`playwright listening on port:${PORT}`)
   const REDIS_HOST = process.env.REDIS_HOST || "keydb";
   const REDIS_PORT = process.env.REDIS_PORT
     ? parseInt(process.env.REDIS_PORT)
@@ -32,6 +34,9 @@ server.listen(6666, async () => {
 
   const connection = new IORedis(REDIS_PORT, REDIS_HOST, {
     maxRetriesPerRequest: null,
+  });
+  const offerResultQueue = new Queue("offer-results-queue", {
+    connection,
   });
 
   browserServer = await firefox.launchServer({
@@ -85,7 +90,10 @@ server.listen(6666, async () => {
   );
 
   worker.on("completed", async (job) => {
-    // io.emit("job-completed", job);
+    const {id, data} = job;
+    if (id) {
+      offerResultQueue.add(id, data)
+    }
   });
 });
 
