@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "node .next/standalone/server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "echo \"no tests yet\""
   },
   "dependencies": {
     "@clerk/nextjs": "^6.9.15",

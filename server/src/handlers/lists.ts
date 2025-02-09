@@ -50,7 +50,7 @@ const updateListHandler = async (req: Request, res: Response) => {
     const updatedListId = await updateList({ title, id });
     res.json({
       success: true,
-      listId: updatedListId,
+      listId: updatedListId && updatedListId[0].id,
     });
   } catch (e) {
     res.json({
@@ -68,7 +68,7 @@ const deleteListHandler = async (req: Request, res: Response) => {
     const deletedList = await deleteList({ id });
     res.json({
       success: true,
-      listId: deletedList,
+      listId: deletedList && deletedList[0].id,
     });
   } catch (e) {
     res.json({
