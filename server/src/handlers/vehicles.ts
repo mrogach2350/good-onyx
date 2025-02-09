@@ -16,8 +16,8 @@ const getVehiclesHandler = async (req: Request, res: Response) => {
 };
 
 const getVehicleByIdHandler = async (req: Request, res: Response) => {
-  const { id = 0 } = req.params;
-  if (id === 0) {
+  const { id = "0" } = req.params;
+  if (id === "0") {
     const error = new Error("Invalid vehicle id");
     res.json({ error: error.name, message: error.message });
   }
