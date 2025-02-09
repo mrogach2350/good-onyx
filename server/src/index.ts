@@ -1,13 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { createLogger, format, transports } from "winston";
-import {
-  getAuctionsHandler,
-  getOfferHandler,
-  getBidHandler,
-} from "./handlers/services";
-import { enqueueJob } from "./handlers/queue";
-import { vehiclesRouter, listsRouter } from './routers'
+import { getAuctionsHandler, getBidHandler } from "./handlers/services";
+import { enqueueJob, getJobs, getAllJobs } from "./handlers/queue";
+import { vehiclesRouter, listsRouter } from "./routers";
 
 const app = express();
 
@@ -42,9 +38,35 @@ app.use("/vehicles", vehiclesRouter);
 app.use("/lists", listsRouter);
 
 app.post("/get-auctions", getAuctionsHandler);
-app.post("/get-offer", getOfferHandler);
 app.post("/get-bid", getBidHandler);
 app.post("/enqueue", enqueueJob);
+app.get("/jobs", getAllJobs);
+app.get("/jobs/:queueName", getJobs);
+
+const clients = new Set<express.Response>();
+
+app.get("/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  res.write('data: {"type":"connected"}\n\n');
+
+  clients.add(res);
+
+  req.on("close", () => {
+    clients.delete(res);
+    logger.info("client disconnected from SSE");
+  });
+
+  logger.info("client connected to SSE");
+});
+
+export const notifyClients = (data: any) => {
+  clients.forEach((client) => {
+    client.write(`data: ${JSON.stringify(data)}\n\n`);
+  });
+};
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

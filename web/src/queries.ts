@@ -1,15 +1,16 @@
 const getAllVehiclesQuery = async () => {
-  const response = await fetch(
-    `/api/vehicles`
-  );
+  const response = await fetch(`/api/vehicles`);
   return await response.json();
 };
 
 const getVehicleByIdQuery = (vehicleId: string | number) => async () => {
-  const response = await fetch(
-    `/api/vehicles/${vehicleId}`
-  );
+  const response = await fetch(`/api/vehicles/${vehicleId}`);
   return await response.json();
 };
 
-export { getAllVehiclesQuery, getVehicleByIdQuery };
+const getAllJobsQuery = async () => {
+  const response = await fetch(`/api/jobs`);
+  return await response.json();
+};
+
+export { getAllVehiclesQuery, getVehicleByIdQuery, getAllJobsQuery };

@@ -10,7 +10,8 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "bulma/css/bulma.min.css";
 import "@/styles/globals.css";
-import NavBar from '../components/NavBar'
+import NavBar from "../components/NavBar";
+import ServerListener from "../components/ServerListener";
 
 config.autoAddCss = false;
 
@@ -19,12 +20,13 @@ const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-      <QueryClientProvider client={queryClient}>
-        <HydrationBoundary state={pageProps.dehydratedState}>
-          <NavBar />
-          <Component {...pageProps} />
-        </HydrationBoundary>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <HydrationBoundary state={pageProps.dehydratedState}>
+        <ServerListener />
+        <NavBar />
+        <Component {...pageProps} />
+      </HydrationBoundary>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
