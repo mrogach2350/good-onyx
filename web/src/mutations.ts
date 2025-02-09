@@ -1,5 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 
+enum QueueNames {
+  OffersQueue = "offers-queue",
+  OffersResultQueue = "offers-result-queue",
+  BidsQueue = "bids-queue",
+  BidsResultQueue = "bids-result-queue",
+  AuctionsQueue = "auctions-queue",
+  AuctionsResultQueue = "auctions-result-queue"
+}
+
 const useDeleteVehiclesMutation = () =>
   useMutation({
     mutationFn: async ({ vehicleIds }: { vehicleIds: number[] }) => {
@@ -19,7 +28,7 @@ const useDeleteVehiclesMutation = () =>
 const useGetOfferMutation = () =>
   useMutation({
     mutationFn: async ({ vin, mileage, id }: any) => {
-      return await fetch(`/api/get-offer`, {
+      return await fetch(`/api/enqueue`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,6 +37,7 @@ const useGetOfferMutation = () =>
           vin,
           mileage,
           id,
+          queueName: QueueNames.OffersQueue,
         }),
       });
     },

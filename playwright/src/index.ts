@@ -6,6 +6,15 @@ import { createLogger, format, transports } from "winston";
 import { getOfferForVehicle } from "./getOfferService";
 import { firefox, BrowserServer } from "playwright-core";
 
+enum QueueNames {
+  OffersQueue = "offers-queue",
+  OffersResultQueue = "offers-result-queue",
+  BidsQueue = "bids-queue",
+  BidsResultQueue = "bids-result-queue",
+  AuctionsQueue = "auctions-queue",
+  AuctionsResultQueue = "auctions-result-queue",
+}
+
 const server = http.createServer();
 
 const { combine, label, printf } = format;
@@ -35,7 +44,7 @@ server.listen(PORT, async () => {
   const connection = new IORedis(REDIS_PORT, REDIS_HOST, {
     maxRetriesPerRequest: null,
   });
-  const offerResultQueue = new Queue("offer-results-queue", {
+  const offerResultQueue = new Queue(QueueNames.OffersResultQueue, {
     connection,
   });
 
@@ -58,7 +67,7 @@ server.listen(PORT, async () => {
 
   const browserEndpoint = browserServer.wsEndpoint();
   const worker = new Worker(
-    "offer-queue",
+    QueueNames.OffersQueue,
     async (job) => {
       logger.info(`starting job ${job.name}`);
       const { vin = "", mileage = 0, id = 0 } = job.data;
