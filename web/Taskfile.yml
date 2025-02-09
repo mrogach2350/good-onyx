@@ -14,3 +14,6 @@ tasks:
   start:
     cmds:
       - npm run start
+  test:
+    cmds:
+      - npm run test

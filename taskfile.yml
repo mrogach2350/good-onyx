@@ -18,6 +18,8 @@ tasks:
     deps: [web:build, server:build, playwright:build]
   start:
     deps: [web:start, server:start, playwright:start]
+  test:
+    deps: [web:test, server:test, playwright:test]
   migrate:
     dir: server
     cmds:
