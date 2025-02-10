@@ -54,14 +54,16 @@ server.listen(PORT, async () => {
       isEnabled: () => true,
       log: (name, severity, message) => logger[severity](`${name} ${message}`),
     },
+    firefoxUserPrefs: {
+      'browser.tabs.remote.autostart': false,
+      'browser.tabs.remote.autostart.2': false,
+    },
     args: [
       "--no-sandbox",
       "--disable-gpu",
-      "--disable-web-security",
-      "--window-size=1920,1080",
-      "--disable-features=IsolateOrigins,site-per-process",
+      "--disable-dev-shm-usage",
       "--disable-setuid-sandbox",
-      "--disable-web-security",
+      "--no-xshm",  // This can help with shared memory issues in containers
     ],
   });
 
