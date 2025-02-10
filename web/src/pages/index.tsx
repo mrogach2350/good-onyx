@@ -46,12 +46,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     setGettingOfferId(id);
     getOfferMutation.mutate(
       { vin, mileage, id },
-      {
-        onSuccess: async () => {
-          queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-        },
-        onSettled: () => setGettingOfferId(null),
-      }
+      { onSettled: () => setGettingOfferId(null) }
     );
   };
 
