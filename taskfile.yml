@@ -35,3 +35,4 @@ tasks:
       - task: migrate
       - task: docker:deploy-server
       - task: docker:deploy-web
+      - task: docker:deploy-playwright
