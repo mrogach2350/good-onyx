@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.50.1-focal
+FROM mcr.microsoft.com/playwright:v1.50.1-jammy
 
 # Install additional dependencies that might be needed
 RUN apt-get update && \
