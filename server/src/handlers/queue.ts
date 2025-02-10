@@ -31,12 +31,11 @@ const offersResultWorker = new Worker(
   async (job) => {
     const { data } = job;
     try {
-      console.log({ ...job.data });
       await createOffer(
         {
-          amount: data.cleanedAmount,
+          amount: data.amount,
           code: data.code,
-          validUntil: data.validUntilDate,
+          validUntil: data.validUntil,
         },
         data.vehicleId
       );
