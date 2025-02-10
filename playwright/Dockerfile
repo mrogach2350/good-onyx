@@ -6,6 +6,6 @@ RUN npm install
 RUN npm run build
 
 # Install Playwright and its dependencies
-RUN npx -y playwright@1.49.1 install firefox --with-deps
+RUN npx -y playwright@1.49.1 install --with-deps
 
 CMD ["node", "./dist/src/index.js"]
