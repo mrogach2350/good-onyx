@@ -12,6 +12,7 @@ import "bulma/css/bulma.min.css";
 import "@/styles/globals.css";
 import NavBar from "../components/NavBar";
 import ServerListener from "../components/ServerListener";
+import NotificationsCard from "../components/NotificationsCard";
 
 config.autoAddCss = false;
 
@@ -25,6 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <ServerListener />
         <NavBar />
         <Component {...pageProps} />
+        <NotificationsCard />
       </HydrationBoundary>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

@@ -10,7 +10,7 @@ enum QueueNames {
   BidsQueue = "bids-queue",
   BidsResultQueue = "bids-result-queue",
   AuctionsQueue = "auctions-queue",
-  AuctionsResultQueue = "auctions-result-queue"
+  AuctionsResultQueue = "auctions-result-queue",
 }
 
 const REDIS_HOST = process.env.REDIS_HOST || "keydb";
@@ -23,6 +23,10 @@ const connection = new IORedis(REDIS_PORT, REDIS_HOST, {
 });
 
 const offersQueue = new Queue(QueueNames.OffersQueue, {
+  connection,
+});
+
+const offersResultsQueue = new Queue(QueueNames.OffersResultQueue, {
   connection,
 });
 
@@ -113,22 +117,33 @@ const enqueueJob = async (req: Request, res: Response) => {
 
 const getJobs = async (req: Request, res: Response) => {
   const { queueName } = req.params;
+
+  let jobs;
   switch (queueName) {
     case QueueNames.OffersQueue:
-      const offersJobs = await offersQueue.getJobs();
+      jobs = await offersQueue.getJobs();
       res.json({
-        jobs: offersJobs,
+        jobs: jobs,
       });
+      break;
+    case QueueNames.OffersResultQueue:
+      jobs = await offersResultsQueue.getJobs();
+      res.json({
+        jobs: jobs,
+      });
+      break;
     case QueueNames.BidsQueue:
-      const bidsJobs = await bidsQueue.getJobs();
+      jobs = await bidsQueue.getJobs();
       res.json({
-        jobs: bidsJobs,
+        jobs: jobs,
       });
+      break;
     case QueueNames.AuctionsQueue:
-      const auctionsJobs = await auctionsQueue.getJobs();
+      jobs = await auctionsQueue.getJobs();
       res.json({
-        jobs: auctionsJobs,
+        jobs: jobs,
       });
+      break;
     default:
       res.json({
         error: true,
@@ -146,7 +161,7 @@ const getAllJobs = async (req: Request, res: Response) => {
   ]);
 
   res.json({
-    jobs: allJobs,
+    jobs: allJobs.reduce((acc, jobs) => [...acc, ...jobs]),
   });
 };
 

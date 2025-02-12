@@ -9,7 +9,7 @@ const getVehicleByIdQuery = (vehicleId: string | number) => async () => {
 };
 
 const getAllJobsQuery = async () => {
-  const response = await fetch(`/api/jobs`);
+  const response = await fetch(`/api/jobs/offers-result-queue`);
   return await response.json();
 };
 
