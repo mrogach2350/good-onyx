@@ -10,7 +10,7 @@ services:
   server:
     build: ./server
     ports:
-      - "4000:4000"
+      - "4444:4000"
     mem_limit: 2G
     restart: unless-stopped
     networks:

@@ -1,0 +1,17 @@
+services:
+  prod-db: 
+    image: postgres:17.5-alpine
+    ports:
+      - 5545:5432
+    restart: unless-stopped
+    env_file: ./.env.postgres-prod
+    volumes:
+      - ./postgres-data-prod:/var/lib/postgresql/data
+  dev-db:
+    image: postgres:17.5-alpine
+    ports:
+      - 5544:5432
+    restart: unless-stopped
+    env_file: ./.env.postgres-dev
+    volumes:
+      - ./postgres-data-dev:/var/lib/postgresql/data

@@ -40,3 +40,5 @@ yarn-error.log*
 next-env.d.ts
 
 db-dumps
+postgres-data-dev
+postgres-data-prod
