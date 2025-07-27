@@ -68,7 +68,7 @@ export const notifyClients = (data: any) => {
   });
 };
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4444;
 app.listen(PORT, () => {
   logger.info(`listening on port ${PORT}`);
 });

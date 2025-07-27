@@ -11,7 +11,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import "bulma/css/bulma.min.css";
 import "@/styles/globals.css";
 import NavBar from "../components/NavBar";
-import ServerListener from "../components/ServerListener";
+// import ServerListener from "../components/ServerListener";
 
 config.autoAddCss = false;
 
@@ -22,7 +22,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={pageProps.dehydratedState}>
-        <ServerListener />
+        {/* <ServerListener /> */}
         <NavBar />
         <Component {...pageProps} />
       </HydrationBoundary>

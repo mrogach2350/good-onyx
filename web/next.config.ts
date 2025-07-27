@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import "./envConfig.ts";
 
-const BASE_SERVER_URL = process.env.BASE_SERVER_URL || "http://server:4000";
+const BASE_SERVER_URL = process.env.BASE_SERVER_URL || "http://server:4444";
 
 const nextConfig = {
   /* config options here */

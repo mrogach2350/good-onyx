@@ -7,6 +7,8 @@ services:
     env_file: ./.env.postgres-prod
     volumes:
       - ./postgres-data-prod:/var/lib/postgresql/data
+    networks:
+      - good_onyx_internal
   dev-db:
     image: postgres:17.5-alpine
     ports:
@@ -15,3 +17,10 @@ services:
     env_file: ./.env.postgres-dev
     volumes:
       - ./postgres-data-dev:/var/lib/postgresql/data
+    networks:
+      - good_onyx_internal
+networks:
+  good_onyx_internal:
+    driver: bridge
+  good_onyx_public:
+    external: true

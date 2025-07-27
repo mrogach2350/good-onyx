@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 const NEXT_PUBLIC_BASE_SERVER_URL =
-  process.env.NEXT_PUBLIC_BASE_SERVER_URL || "http://server:4000";
+  process.env.NEXT_PUBLIC_BASE_SERVER_URL || "http://server:4444";
 
 export default function ServerListener() {
   const queryClient = useQueryClient();
