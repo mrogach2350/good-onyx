@@ -23,7 +23,7 @@ import { getAllVehiclesQuery } from "@/queries";
 import {
   useDeleteVehiclesMutation,
   useGetOfferMutation,
-  useAuctionScraperMutation,
+  useAuctionScraperQueueMutation,
   useUpdateNoteMutation,
 } from "@/mutations";
 
@@ -34,7 +34,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
   const queryClient = useQueryClient();
   const getOfferMutation = useGetOfferMutation();
   const deleteVehiclesMutation = useDeleteVehiclesMutation();
-  const auctionScraperMutation = useAuctionScraperMutation();
+  const auctionScraperMutation = useAuctionScraperQueueMutation();
   const updateNoteMutation = useUpdateNoteMutation();
 
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);

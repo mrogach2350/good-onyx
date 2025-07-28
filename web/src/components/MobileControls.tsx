@@ -8,7 +8,7 @@ import AddToListDropDown from "@/components/AddToListDropdown";
 import RemoveFromListButton from "@/components/RemoveFromListButton";
 import {
   useDeleteVehiclesMutation,
-  useAuctionScraperMutation,
+  useAuctionScraperQueueMutation,
   useUndoDeleteVehiclesMutation,
   useGetAuctionBidsMutation,
 } from "@/mutations";
@@ -24,7 +24,7 @@ export default function MobileControls({
   downloadCsv,
 }: any) {
   const queryClient = useQueryClient();
-  const auctionScraperMutation = useAuctionScraperMutation();
+  const auctionScraperMutation = useAuctionScraperQueueMutation();
   const getAuctionBidsMutation = useGetAuctionBidsMutation();
   const deleteVehiclesMutation = useDeleteVehiclesMutation();
   const undoDeleteVehiclesMutation = useUndoDeleteVehiclesMutation();

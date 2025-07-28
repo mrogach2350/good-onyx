@@ -6,7 +6,7 @@ enum QueueNames {
   BidsQueue = "bids-queue",
   BidsResultQueue = "bids-result-queue",
   AuctionsQueue = "auctions-queue",
-  AuctionsResultQueue = "auctions-result-queue"
+  AuctionsResultQueue = "auctions-result-queue",
 }
 
 const useDeleteVehiclesMutation = () =>
@@ -53,6 +53,22 @@ const useAuctionScraperMutation = () =>
         },
         body: JSON.stringify({
           auctionUrl: scraperUrl,
+        }),
+      });
+    },
+  });
+
+const useAuctionScraperQueueMutation = () =>
+  useMutation({
+    mutationFn: async ({ scraperUrl }: { scraperUrl: string }) => {
+      await fetch(`/api/enqueue`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          auctionUrl: scraperUrl,
+          queueName: QueueNames.AuctionsQueue,
         }),
       });
     },
@@ -166,6 +182,7 @@ export {
   useDeleteVehiclesMutation,
   useGetOfferMutation,
   useAuctionScraperMutation,
+  useAuctionScraperQueueMutation,
   useUndoDeleteVehiclesMutation,
   useGetAuctionBidsMutation,
   useUpdateNoteMutation,
