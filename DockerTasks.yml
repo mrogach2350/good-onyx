@@ -16,12 +16,6 @@ tasks:
   deploy-playwright:
     cmds:
       - docker compose up playwright -d --build
-  create-postgres-dev:
-    cmds:
-      - docker run --name drizzle-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres
-  create-keydb-dev:
-    cmds:
-      - docker run --name keydb -p 6379:6379 -d eqalpha/keydb
   stop-dev-dbs:
     cmds:
       - docker stop keydb

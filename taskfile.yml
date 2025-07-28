@@ -26,13 +26,6 @@ tasks:
       - npx drizzle-kit migrate
   deploy:
     cmds:
-      - task: docker:deploy-dbs
-      - task: migrate
-      - task: docker:deploy-server
-      - task: docker:deploy-web
-      - task: docker:deploy-playwright
-  short-deploy:
-    cmds:
       - task: migrate
       - task: docker:deploy-server
       - task: docker:deploy-web
