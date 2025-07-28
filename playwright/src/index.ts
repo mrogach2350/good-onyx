@@ -3,8 +3,9 @@ import http from "node:http";
 import IORedis from "ioredis";
 import { Queue, Worker } from "bullmq";
 import { createLogger, format, transports } from "winston";
-import { getOfferForVehicle } from "./getOfferService";
 import { firefox, BrowserServer } from "playwright-core";
+import { getOfferForVehicle } from "./getOfferService";
+import { getAuctions } from "./getAuctionsService";
 
 enum QueueNames {
   OffersQueue = "offers-queue",
@@ -32,7 +33,8 @@ export const logger = createLogger({
 });
 
 export let browserServer: BrowserServer;
-
+let offerQueueWorker: Worker;
+let auctionQueueWorker: Worker;
 const PORT = process.env.PORT || 6666;
 server.listen(PORT, async () => {
   logger.info(`playwright listening on port:${PORT}`);
@@ -48,6 +50,10 @@ server.listen(PORT, async () => {
     connection,
   });
 
+  const auctionResultQueue = new Queue(QueueNames.AuctionsResultQueue, {
+    connection,
+  });
+
   browserServer = await firefox.launchServer({
     headless: true,
     logger: {
@@ -55,23 +61,23 @@ server.listen(PORT, async () => {
       log: (name, severity, message) => logger[severity](`${name} ${message}`),
     },
     firefoxUserPrefs: {
-      'browser.tabs.remote.autostart': false,
-      'browser.tabs.remote.autostart.2': false,
+      "browser.tabs.remote.autostart": false,
+      "browser.tabs.remote.autostart.2": false,
     },
     args: [
       "--no-sandbox",
       "--disable-gpu",
       "--disable-dev-shm-usage",
       "--disable-setuid-sandbox",
-      "--no-xshm",  // This can help with shared memory issues in containers
+      "--no-xshm", // This can help with shared memory issues in containers
     ],
   });
 
   const browserEndpoint = browserServer.wsEndpoint();
-  const worker = new Worker(
+  offerQueueWorker = new Worker(
     QueueNames.OffersQueue,
     async (job) => {
-      logger.info(`starting job ${job.name}`);
+      logger.info(`starting offer job ${job.name}`);
       const { vin = "", mileage = 0, id = 0 } = job.data;
       if (vin === "" || mileage === 0 || id === 0) return null;
 
@@ -99,8 +105,33 @@ server.listen(PORT, async () => {
     },
     { connection }
   );
+
+  auctionQueueWorker = new Worker(
+    QueueNames.AuctionsQueue,
+    async (job) => {
+      logger.info(`starting auction job ${job.name}`);
+      const { auctionUrl = "" } = job.data;
+      if (auctionUrl === "") return null;
+      try {
+        const result = await getAuctions(auctionUrl);
+        if (!result?.error) {
+          auctionResultQueue.add(auctionUrl, { ...result });
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          return {
+            error: error.name,
+            message: error.message,
+          };
+        }
+      }
+    },
+    { connection }
+  );
 });
 
 server.on("close", () => {
   browserServer.close();
+  offerQueueWorker.close();
+  auctionQueueWorker.close();
 });
