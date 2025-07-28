@@ -1,8 +1,10 @@
 import type { Request, Response } from "express";
 import IORedis from "ioredis";
 import { Queue, Worker } from "bullmq";
-import { createOffer } from "../db/interactions/offers";
 import { logger, notifyClients } from "../index";
+import { createOffer } from "../db/interactions/offers";
+import { upsertAuction } from "../db/interactions/auctions";
+import { bulkCreateVehicle } from "../db/interactions/vehicles";
 
 enum QueueNames {
   OffersQueue = "offers-queue",
@@ -10,7 +12,7 @@ enum QueueNames {
   BidsQueue = "bids-queue",
   BidsResultQueue = "bids-result-queue",
   AuctionsQueue = "auctions-queue",
-  AuctionsResultQueue = "auctions-result-queue"
+  AuctionsResultQueue = "auctions-result-queue",
 }
 
 const REDIS_HOST = process.env.REDIS_HOST || "keydb";
@@ -26,39 +28,69 @@ const offersQueue = new Queue(QueueNames.OffersQueue, {
   connection,
 });
 
-const offersResultWorker = new Worker(
-  QueueNames.OffersResultQueue,
-  async (job) => {
-    const { data } = job;
-    try {
-      await createOffer(
-        {
-          amount: data.amount,
-          code: data.code,
-          validUntil: data.validUntil,
-        },
-        data.vehicleId
-      );
+const createOfferResultsWorker = () =>
+  new Worker(
+    QueueNames.OffersResultQueue,
+    async (job) => {
+      const { data } = job;
+      try {
+        await createOffer(
+          {
+            amount: data.amount,
+            code: data.code,
+            validUntil: data.validUntil,
+          },
+          data.vehicleId
+        );
 
-      notifyClients({
-        type: "newOffer",
-        vehicleId: data.vehicleId,
-      });
-
-      logger.info(`created offer for vehicle id:${data.vehicleId}`);
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error({
-          message: `error creating offer for vehicle id:${data.vehicleId}`,
-          error: e.message,
+        notifyClients({
+          type: "newOffer",
+          vehicleId: data.vehicleId,
         });
+
+        logger.info(`created offer for vehicle id:${data.vehicleId}`);
+      } catch (e) {
+        if (e instanceof Error) {
+          logger.error({
+            message: `error creating offer for vehicle id:${data.vehicleId}`,
+            error: e.message,
+          });
+        }
       }
+    },
+    {
+      connection,
     }
-  },
-  {
-    connection,
-  }
-);
+  );
+
+const createAuctionResultsWorker = () =>
+  new Worker(
+    QueueNames.AuctionsResultQueue,
+    async (job) => {
+      const { data } = job;
+      try {
+        const newAuction = await upsertAuction(data.auction);
+        const newVehicles = await bulkCreateVehicle(
+          data.listings,
+          newAuction[0]?.id
+        );
+
+        logger.info(
+          `create ${newVehicles.length} listings for auctionUrl: ${data.auctionUrl}`
+        );
+      } catch (e) {
+        if (e instanceof Error) {
+          logger.error({
+            message: `error creating offer for vehicle id:${data.vehicleId}`,
+            error: e.message,
+          });
+        }
+      }
+    },
+    {
+      connection,
+    }
+  );
 
 const bidsQueue = new Queue(QueueNames.BidsQueue, {
   connection,
@@ -150,4 +182,11 @@ const getAllJobs = async (req: Request, res: Response) => {
   });
 };
 
-export { enqueueJob, offersQueue, offersResultWorker, getJobs, getAllJobs };
+export {
+  enqueueJob,
+  offersQueue,
+  createOfferResultsWorker,
+  createAuctionResultsWorker,
+  getJobs,
+  getAllJobs,
+};

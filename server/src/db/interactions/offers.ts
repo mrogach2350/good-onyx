@@ -5,7 +5,7 @@ export const createOffer = async (
   offer: InsertOffer,
   vehicleId: number = 0
 ) => {
-  if (!offer?.code || !offer?.validUntil) return;
+  if (!offer?.validUntil) return;
   try {
     return await db
       .insert(offers)

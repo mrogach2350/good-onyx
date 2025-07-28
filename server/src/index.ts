@@ -1,8 +1,15 @@
 import express from "express";
 import cors from "cors";
 import { createLogger, format, transports } from "winston";
+import { Worker } from "bullmq";
 import { getAuctionsHandler, getBidHandler } from "./handlers/services";
-import { enqueueJob, getJobs, getAllJobs } from "./handlers/queue";
+import {
+  enqueueJob,
+  getJobs,
+  getAllJobs,
+  createOfferResultsWorker,
+  createAuctionResultsWorker,
+} from "./handlers/queue";
 import { vehiclesRouter, listsRouter } from "./routers";
 
 const app = express();
@@ -45,7 +52,7 @@ app.get("/jobs/:queueName", getJobs);
 
 const clients = new Set<express.Response>();
 
-app.get("/events", (req, res) => {
+app.get("/events/:id", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -69,6 +76,16 @@ export const notifyClients = (data: any) => {
 };
 
 const PORT = process.env.PORT || 4444;
+let offerResultsWorker: Worker;
+let auctionResultsWorker: Worker;
 app.listen(PORT, () => {
+  offerResultsWorker = createOfferResultsWorker();
+  auctionResultsWorker = createAuctionResultsWorker();
+
   logger.info(`listening on port ${PORT}`);
+});
+
+app.on("close", () => {
+  offerResultsWorker.close();
+  auctionResultsWorker.close();
 });

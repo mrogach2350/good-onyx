@@ -72,13 +72,13 @@ export const bulkCreateVehicle = async (
   newVehicles: InsertVehicle[],
   auctionRecordId = 0
 ) => {
-  newVehicles
+  return newVehicles
     .filter((v: InsertVehicle) => v.vin !== "" && v.url !== "")
     .map((v: InsertVehicle) => ({
       auctionId: auctionRecordId,
       ...v,
     }))
-    .forEach(async (v: InsertVehicle) => {
+    .map(async (v: InsertVehicle) => {
       try {
         await db
           .insert(vehicles)
@@ -86,7 +86,8 @@ export const bulkCreateVehicle = async (
           .onConflictDoUpdate({
             target: vehicles.vin,
             set: { ...v, deletedAt: null },
-          });
+          })
+          .returning({ id: vehicles.id });
       } catch (e) {
         console.log("error creating vehicle record:", {
           e,
