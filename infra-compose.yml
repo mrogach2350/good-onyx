@@ -9,6 +9,7 @@ services:
       - ./postgres-data-prod:/var/lib/postgresql/data
     networks:
       - good_onyx_internal
+      - good_onyx_public
   dev-db:
     image: postgres:17.5-alpine
     ports:
@@ -19,8 +20,35 @@ services:
       - ./postgres-data-dev:/var/lib/postgresql/data
     networks:
       - good_onyx_internal
+      - good_onyx_public
+  keydb:
+    image: eqalpha/keydb
+    networks:
+      - good_onyx_internal
+      - good_onyx_public
+    volumes:
+      - keydb_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+  socketi:
+    image: quay.io/soketi/soketi:1.4-16-debian
+    networks:
+      - good_onyx_internal
+      - good_onyx_public
+    ports:
+      - "6001:6001"
+      - "9601:9601"
+    restart: unless-stopped
+    environment:
+      SOKETI_DB_REDIS_HOST: "keydb"
+      SOKETI_DB_REDIS_PORT: 6379
+      
 networks:
   good_onyx_internal:
     driver: bridge
   good_onyx_public:
     external: true
+
+volumes:
+  keydb_data:

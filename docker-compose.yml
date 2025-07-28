@@ -15,6 +15,7 @@ services:
     restart: unless-stopped
     networks:
       - good_onyx_internal
+      - good_onyx_public
   playwright:
     build: ./playwright
     mem_limit: 2G
@@ -23,22 +24,12 @@ services:
       - "6666:6666"
     networks:
       - good_onyx_internal
-  keydb:
-    image: eqalpha/keydb
-    networks:
-      - good_onyx_internal
-    volumes:
-      - keydb_data:/data
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
+      - good_onyx_public
+      
 networks:
   good_onyx_internal:
     driver: bridge
   good_onyx_public:
     external: true
-
-volumes:
-  keydb_data:
 
 
