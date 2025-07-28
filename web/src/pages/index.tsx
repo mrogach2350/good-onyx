@@ -14,10 +14,11 @@ import {
   SelectionChangedEvent,
   type CellEditingStoppedEvent,
 } from "ag-grid-community";
+import { mkConfig, generateCsv, download } from "export-to-csv";
 import MobileControls from "@/components/MobileControls";
 import DesktopControls from "@/components/DesktopControls";
 import { isProfitable } from "@/utils/costEstimator";
-import { getColDefs } from "@/utils/helpers";
+import { getColDefs, secondsToHms } from "@/utils/helpers";
 import { getAllVehiclesQuery } from "@/queries";
 import {
   useDeleteVehiclesMutation,
@@ -101,6 +102,12 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     }
   }, [selectedListId]);
 
+  const rowData = useMemo(() => {
+    return selectedListId === 0
+      ? allVehiclesData?.vehicles
+      : vehiclesByListData?.vehicles;
+  }, [selectedListId, allVehiclesData, vehiclesByListData]);
+
   const onSelectionChanged = useCallback((event: SelectionChangedEvent) => {
     const selectedNodes = event.api.getSelectedNodes();
     setSelectedNodes(selectedNodes);
@@ -122,6 +129,56 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     }
   };
 
+  const downloadCsv = useCallback(() => {
+    // Transform the complex data into simple types that the CSV library can handle
+    const processedData =
+      rowData?.map((vehicle: any) => {
+        // Create a new object with only primitive values
+        const processedVehicle: any = {
+          id: vehicle.id,
+          title: vehicle.title,
+          vin: vehicle.vin,
+          make: vehicle.make,
+          model: vehicle.model,
+          year: vehicle.year,
+          mileage: vehicle.mileage,
+          note: vehicle.note,
+        };
+
+        // Process currentBidAmount to extract just the number
+        if (vehicle.currentBidAmount) {
+          const bidNumberString = vehicle.currentBidAmount.split(" ")[1];
+          processedVehicle.currentBidAmount =
+            parseInt(bidNumberString?.replace(/,/g, "")) || 0;
+        }
+
+        // Process secondsLeftToBid
+        if (vehicle.secondsLeftToBid) {
+          processedVehicle.timeLeftToBid = secondsToHms(
+            vehicle.secondsLeftToBid
+          );
+        }
+
+        // Process offers array to get the latest offer amount
+        if (vehicle.offers && vehicle.offers.length > 0) {
+          processedVehicle.latestOffer =
+            vehicle.offers[0]?.amount || "No Offers";
+        } else {
+          processedVehicle.latestOffer = "No Offers";
+        }
+
+        return processedVehicle;
+      }) || [];
+
+    const csvConfig = mkConfig({
+      useKeysAsHeaders: true,
+      filename: `vehicles-export-${new Date().toISOString().split("T")[0]}`,
+    });
+
+    const csv = generateCsv(csvConfig)(processedData);
+    return download(csvConfig)(csv);
+  }, [rowData]);
+
   const showLoadingBar =
     areVehiclesByListLoading ||
     areVehiclesLoading ||
@@ -130,7 +187,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
     getOfferMutation.isPending;
 
   return (
-    <div className="section h-full">
+    <div className="section h-[calc(100vh-52px)]">
       {showLoadingBar && (
         <progress
           className="progress is-small is-primary w-screen fixed top-0 left-0"
@@ -147,6 +204,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           setSelectedListId={setSelectedListId}
           showCostEstimates={showCostEstimates}
           setShowCostEstimates={setShowCostEstimates}
+          downloadCsv={downloadCsv}
         />
       ) : (
         <DesktopControls
@@ -157,6 +215,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           setSelectedListId={setSelectedListId}
           showCostEstimates={showCostEstimates}
           setShowCostEstimates={setShowCostEstimates}
+          downloadCsv={downloadCsv}
         />
       )}
       <div className="h-5/6">
@@ -173,11 +232,7 @@ export default function Home({ isMobile }: { isMobile: boolean }) {
           }}
           theme={myTheme}
           columnDefs={colDefs}
-          rowData={
-            selectedListId === 0
-              ? allVehiclesData?.vehicles
-              : vehiclesByListData?.vehicles
-          }
+          rowData={rowData}
           onSelectionChanged={onSelectionChanged}
           autoSizeStrategy={{
             type: "fitCellContents",

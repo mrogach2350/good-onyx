@@ -21,6 +21,7 @@ export default function DesktopControls({
   setSelectedListId,
   setShowCostEstimates,
   showCostEstimates,
+  downloadCsv,
 }: any) {
   const queryClient = useQueryClient();
   const auctionScraperMutation = useAuctionScraperMutation();
@@ -108,6 +109,11 @@ export default function DesktopControls({
           onChange={handleListChange}
         />
         <div className="flex justify-end space-x-2 mb-2">
+          <button
+            className="button is-primary"
+            onClick={() => downloadCsv()}>
+            Download CSV
+          </button>
           <button
             className="button is-primary"
             onClick={() => setShowCostEstimates(!showCostEstimates)}>

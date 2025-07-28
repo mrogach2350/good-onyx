@@ -21,6 +21,7 @@ export default function MobileControls({
   setSelectedListId,
   setShowCostEstimates,
   showCostEstimates,
+  downloadCsv,
 }: any) {
   const queryClient = useQueryClient();
   const auctionScraperMutation = useAuctionScraperMutation();
@@ -141,6 +142,9 @@ export default function MobileControls({
           </Button>
         </div>
         <div className="flex justify-end space-x-1 mb-1">
+          <button className="button is-primary" onClick={() => downloadCsv()}>
+            Download CSV
+          </button>
           <button
             className="button self-start is-primary"
             onClick={() => setShowCostEstimates(!showCostEstimates)}>
