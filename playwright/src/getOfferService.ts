@@ -232,21 +232,21 @@ export const getOfferForVehicle = async (
         message: "Offer is ineligible for instant offer",
       };
     }
-    const offerElement = await page.waitForSelector('[data-qa="offer-amount"]');
+    const offerElement = await page.waitForSelector("#offer-hero-amount");
     const offerAmount = await offerElement.textContent();
     if (!offerAmount) throw new Error("Could not find offer amount");
     const cleanedAmount = parseFloat(offerAmount.replace(/[$,]/g, ""));
 
     // Get offer code
-    const offerCodeText = await page.textContent(
-      ".Offer-module__offerCode--XWbKk"
-    );
-    if (!offerCodeText) throw new Error("Could not find offer code");
-    const offerCode = offerCodeText.replace("Offer code: ", "");
+    // const offerCodeText = await page.textContent(
+    //   ".Offer-module__offerCode--XWbKk"
+    // );
+    // if (!offerCodeText) throw new Error("Could not find offer code");
+    // const offerCode = offerCodeText.replace("Offer code: ", "");
 
     // Get valid until date
     const validUntilText = await page.textContent(
-      ".Offer-module__expiration--d_mGC"
+      "#offer-hero-expiration-date"
     );
     if (!validUntilText) throw new Error("Could not find expiration date");
     const validUntilDate = new Date(
@@ -257,13 +257,13 @@ export const getOfferForVehicle = async (
     logger.info(`VIN: ${vin}`);
     logger.info(`Mileage: ${mileage}`);
     logger.info(`Amount: $${cleanedAmount}`);
-    logger.info(`Code: ${offerCode}`);
+    // logger.info(`Code: ${offerCode}`);
     logger.info(`Valid until: ${validUntilDate.toLocaleDateString()}`);
 
     return {
       offerData: {
         amount: cleanedAmount,
-        code: offerCode,
+        code: "",
         validUntil: validUntilDate,
         vehicleId,
       },
