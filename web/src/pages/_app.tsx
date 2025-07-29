@@ -11,6 +11,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import "bulma/css/bulma.min.css";
 import "@/styles/globals.css";
 import NavBar from "../components/NavBar";
+import JobTracker from "@/components/JobTracker";
 
 config.autoAddCss = false;
 
@@ -23,6 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <HydrationBoundary state={pageProps.dehydratedState}>
         <NavBar />
         <Component {...pageProps} />
+        <JobTracker />
       </HydrationBoundary>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

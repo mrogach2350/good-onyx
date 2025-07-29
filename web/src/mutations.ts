@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-enum QueueNames {
+export enum QueueNames {
   OffersQueue = "offers-queue",
   OffersResultQueue = "offers-result-queue",
   BidsQueue = "bids-queue",
